@@ -1,6 +1,7 @@
 package com.ck.it.config;
 
 import com.ck.it.interceptor.JwtTokenAdminInterceptor;
+import com.ck.it.json.JacksonObjectMapper;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
@@ -9,6 +10,8 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverters;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -76,5 +79,13 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
 		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+	}
+
+	/**
+	 * 扩展spring mvc框架的消息转化器
+	 */
+	@Override
+	public void configureMessageConverters(HttpMessageConverters.ServerBuilder builder) {
+		builder.withJsonConverter(new JacksonJsonHttpMessageConverter(new JacksonObjectMapper()));
 	}
 }

@@ -3,7 +3,9 @@ package com.ck.it.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ck.it.dto.EmployeeDTO;
 import com.ck.it.dto.EmployeeLoginDTO;
+import com.ck.it.dto.EmployeePageQueryDTO;
 import com.ck.it.entity.Employee;
+import com.ck.it.result.PageResult;
 
 public interface EmployeeService extends IService<Employee> {
 
@@ -20,4 +22,6 @@ public interface EmployeeService extends IService<Employee> {
 	 * @param employee
 	 */
 	void save(EmployeeDTO employee);
+
+	PageResult pageQuery(EmployeePageQueryDTO dto);
 }
