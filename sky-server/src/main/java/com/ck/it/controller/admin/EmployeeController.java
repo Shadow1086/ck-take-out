@@ -100,20 +100,39 @@ public class EmployeeController {
 	}
 
 	/**
-	 *  启用/禁用员工账号
+	 * 启用/禁用员工账号
 	 *
-	 * @param status    前端更新后的状态
-	 * @param id        目标用户id
+	 * @param status 前端更新后的状态
+	 * @param id     目标用户id
 	 * @return {@link Result }
 	 */
 	@PostMapping("/status/{status}/{id}")
 	@Operation(summary = "启用/禁用员工账号")
 	public Result startOrStop(@PathVariable("status") Integer status,
 	                          @PathVariable("id") Long id) {
-		log.info("启用禁用员工账号：{},{}",status,id);
-		employeeService.startOrStop(status,id);
+		log.info("启用禁用员工账号：{},{}", status, id);
+		employeeService.startOrStop(status, id);
 		return Result.success();
 	}
 
+	/**
+	 *
+	 * @param id
+	 * @return
+	 */
+	@GetMapping("/{id}")
+	@Operation(summary = "获取员工信息")
+	public Result<Employee> getById(@PathVariable("id") Long id) {
+		Employee byId = employeeService.getById(id);
+		byId.setPassword("******");
+		return Result.success(byId);
+	}
 
+	@PutMapping
+	@Operation(summary = "编辑员工信息")
+	public Result<Object> update(@RequestBody EmployeeDTO dto) {
+		log.info("编辑员工信息：{},id:{}",dto,dto.getId());
+		int i = employeeService.updateEmployee(dto);
+		return Result.success(i);
+	}
 }

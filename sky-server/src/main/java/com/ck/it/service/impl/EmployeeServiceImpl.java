@@ -21,6 +21,7 @@ import com.ck.it.service.EmployeeService;
 import com.ck.it.utils.PasswordUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -120,5 +121,24 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 				.set(Employee::getUpdateTime, LocalDateTime.now())
 				.set(Employee::getUpdateUser, BaseContext.getCurrentId())
 				.update();
+	}
+
+	/**
+	 *  更新员工信息
+	 * @param dto
+	 * @return
+	 */
+	@Override
+	public int updateEmployee(EmployeeDTO dto) {
+		Employee employee = new Employee();
+		BeanUtils.copyProperties(dto,employee);
+
+		employee.setUpdateTime(LocalDateTime.now());
+		employee.setUpdateUser(BaseContext.getCurrentId());
+		int i = employeeMapper.updateById(employee);
+		if(i==0){
+			throw new RuntimeException("员工不存在或更新失败");
+		}
+		return i;
 	}
 }
