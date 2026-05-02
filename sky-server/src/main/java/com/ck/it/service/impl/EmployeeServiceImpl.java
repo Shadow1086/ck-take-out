@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.constant.MessageConstant;
 import com.ck.it.constant.PasswordConstant;
 import com.ck.it.constant.StatusConstant;
+import com.ck.it.context.BaseContext;
 import com.ck.it.dto.EmployeeDTO;
 import com.ck.it.dto.EmployeeLoginDTO;
 import com.ck.it.entity.Employee;
@@ -80,9 +81,10 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper,Employee> im
 		employee.setPassword(encodePassword);
 
 		/// 设置当前记录创建人id 和修改人id
-		// TODO 需要改为当前登录用户的id
-		employee.setCreateUser(10L);
-		employee.setUpdateUser(10L);
+
+		Long currentId = BaseContext.getCurrentId();
+		employee.setCreateUser(currentId);
+		employee.setUpdateUser(currentId);
 
 		employeeMapper.insert(employee);
 	}

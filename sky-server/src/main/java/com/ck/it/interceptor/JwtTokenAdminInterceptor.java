@@ -1,6 +1,7 @@
 package com.ck.it.interceptor;
 
 import com.ck.it.constant.JwtClaimsConstant;
+import com.ck.it.context.BaseContext;
 import com.ck.it.properties.JwtProperties;
 import com.ck.it.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -32,6 +33,9 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
      * @throws Exception
      */
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+		/// 获取当前线程id
+		log.info("当前线程id:{}", Thread.currentThread().threadId());
+
         //判断当前拦截到的是Controller的方法还是其他资源
         if (!(handler instanceof HandlerMethod)) {
             //当前拦截到的不是动态方法，直接放行
@@ -46,11 +50,12 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
             log.info("jwt校验:{}", token);
             Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
             Long empId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
+	        BaseContext.setCurrentId(empId);
             log.info("当前员工id：{}", empId);
             //3、通过，放行
             return true;
         } catch (Exception ex) {
-            //4、不通过，响应401状态码
+            //4、不通过，响应 401 状态码
             response.setStatus(401);
             return false;
         }
