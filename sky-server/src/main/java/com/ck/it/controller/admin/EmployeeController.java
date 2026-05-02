@@ -91,12 +91,28 @@ public class EmployeeController {
 		return Result.success();
 	}
 
-	@GetMapping("page")
+	@GetMapping("/page")
 	@Operation(summary = "员工分页查询")
 	public Result<PageResult> page(EmployeePageQueryDTO dto) {
-		log.info("员工分页查询，参数为：{}",dto);
+		log.info("员工分页查询，参数为：{}", dto);
 		PageResult pageResult = employeeService.pageQuery(dto);
 		return Result.success(pageResult);
+	}
+
+	/**
+	 *  启用/禁用员工账号
+	 *
+	 * @param status    前端更新后的状态
+	 * @param id        目标用户id
+	 * @return {@link Result }
+	 */
+	@PostMapping("/status/{status}/{id}")
+	@Operation(summary = "启用/禁用员工账号")
+	public Result startOrStop(@PathVariable("status") Integer status,
+	                          @PathVariable("id") Long id) {
+		log.info("启用禁用员工账号：{},{}",status,id);
+		employeeService.startOrStop(status,id);
+		return Result.success();
 	}
 
 

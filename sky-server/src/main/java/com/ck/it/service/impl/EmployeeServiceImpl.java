@@ -100,8 +100,8 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 
 		LambdaQueryWrapper<Employee> queryWrapper = new LambdaQueryWrapper<>();
 		queryWrapper.like(
-				dto.getName() != null && !dto.getName().isBlank(),
-				Employee::getName, dto.getName())
+						dto.getName() != null && !dto.getName().isBlank(),
+						Employee::getName, dto.getName())
 				.orderByDesc(Employee::getCreateTime);
 
 		IPage<Employee> resultPage = employeeMapper.selectPage(page, queryWrapper);
@@ -111,5 +111,14 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 		pageResult.setRecords(resultPage.getRecords());
 
 		return pageResult;
+	}
+
+	@Override
+	public void startOrStop(Integer status, Long id) {
+		lambdaUpdate().eq(Employee::getId, id)
+				.set(Employee::getStatus, status)
+				.set(Employee::getUpdateTime, LocalDateTime.now())
+				.set(Employee::getUpdateUser, BaseContext.getCurrentId())
+				.update();
 	}
 }

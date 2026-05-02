@@ -30,7 +30,8 @@ public class Employee implements Serializable {
     private String sex;
 
     private String idNumber;
-	@TableLogic
+
+//	@TableLogic
     private Integer status;
 
     //@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
