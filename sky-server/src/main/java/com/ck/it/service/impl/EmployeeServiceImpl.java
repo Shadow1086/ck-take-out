@@ -21,7 +21,6 @@ import com.ck.it.service.EmployeeService;
 import com.ck.it.utils.PasswordUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -80,17 +79,17 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 		BeanUtils.copyProperties(dto, employee);
 		// 设置账号状态
 		employee.setStatus(StatusConstant.ENABLE);
-		employee.setCreateTime(LocalDateTime.now());
-		employee.setUpdateTime(LocalDateTime.now());
+//		employee.setCreateTime(LocalDateTime.now());
+//		employee.setUpdateTime(LocalDateTime.now());
 		// 默认密码 123456 , 存储在 PasswordConstant 中
 		String encodePassword = PasswordUtil.encode(PasswordConstant.DEFAULT_PASSWORD);
 		employee.setPassword(encodePassword);
 
 		/// 设置当前记录创建人id 和修改人id
 
-		Long currentId = BaseContext.getCurrentId();
-		employee.setCreateUser(currentId);
-		employee.setUpdateUser(currentId);
+//		Long currentId = BaseContext.getCurrentId();
+//		employee.setCreateUser(currentId);
+//		employee.setUpdateUser(currentId);
 
 		employeeMapper.insert(employee);
 	}
@@ -124,19 +123,20 @@ public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper, Employee> i
 	}
 
 	/**
-	 *  更新员工信息
+	 * 更新员工信息
+	 *
 	 * @param dto
 	 * @return
 	 */
 	@Override
 	public int updateEmployee(EmployeeDTO dto) {
 		Employee employee = new Employee();
-		BeanUtils.copyProperties(dto,employee);
+		BeanUtils.copyProperties(dto, employee);
 
-		employee.setUpdateTime(LocalDateTime.now());
-		employee.setUpdateUser(BaseContext.getCurrentId());
+//		employee.setUpdateTime(LocalDateTime.now());
+//		employee.setUpdateUser(BaseContext.getCurrentId());
 		int i = employeeMapper.updateById(employee);
-		if(i==0){
+		if (i == 0) {
 			throw new RuntimeException("员工不存在或更新失败");
 		}
 		return i;
