@@ -1,6 +1,7 @@
 package com.ck.it.controller.admin;
 
 import com.ck.it.constant.JwtClaimsConstant;
+import com.ck.it.dto.EmployeeDTO;
 import com.ck.it.dto.EmployeeLoginDTO;
 import com.ck.it.entity.Employee;
 import com.ck.it.properties.JwtProperties;
@@ -77,4 +78,17 @@ public class EmployeeController {
         return Result.success();
     }
 
+	/**
+	 *  新增员工
+	 *
+	 * @param employee
+	 * @return {@link Result }
+	 */
+	@PostMapping
+	@Operation(summary = "新增员工")
+	public Result<Object> save(@RequestBody EmployeeDTO employee){
+		log.info("新增员工：{}",employee);
+		employeeService.save(employee);
+		return Result.success();
+	}
 }

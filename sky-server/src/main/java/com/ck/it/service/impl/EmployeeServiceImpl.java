@@ -1,7 +1,10 @@
 package com.ck.it.service.impl;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.constant.MessageConstant;
+import com.ck.it.constant.PasswordConstant;
 import com.ck.it.constant.StatusConstant;
+import com.ck.it.dto.EmployeeDTO;
 import com.ck.it.dto.EmployeeLoginDTO;
 import com.ck.it.entity.Employee;
 import com.ck.it.exception.AccountLockedException;
@@ -10,11 +13,15 @@ import com.ck.it.exception.PasswordErrorException;
 import com.ck.it.mapper.EmployeeMapper;
 import com.ck.it.service.EmployeeService;
 import com.ck.it.utils.PasswordUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
+
 @Service
-public class EmployeeServiceImpl implements EmployeeService {
+public class EmployeeServiceImpl extends ServiceImpl<EmployeeMapper,Employee> implements EmployeeService {
 
     @Autowired
     private EmployeeMapper employeeMapper;
@@ -30,7 +37,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         String password = employeeLoginDTO.getPassword();
 
         //1、根据用户名查询数据库中的数据
-        Employee employee = employeeMapper.getByUsername(username);
+		Employee employee = lambdaQuery().eq(Employee::getUsername,username).one();
 
         //2、处理各种异常情况（用户名不存在、密码不对、账号被锁定）
         if (employee == null) {
@@ -44,7 +51,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
 
-        if (employee.getStatus() == StatusConstant.DISABLE) {
+        if (Objects.equals(employee.getStatus(), StatusConstant.DISABLE)) {
             //账号被锁定
             throw new AccountLockedException(MessageConstant.ACCOUNT_LOCKED);
         }
@@ -53,4 +60,30 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employee;
     }
 
+	/**
+	 * 新增员工业务方法
+	 *
+	 * @param dto   前端出来的数据
+	 */
+	@Override
+	public void save(EmployeeDTO dto) {
+		Employee employee = new Employee();
+
+		/// 对象的属性拷贝
+		BeanUtils.copyProperties(dto,employee);
+		// 设置账号状态
+		employee.setStatus(StatusConstant.ENABLE);
+		employee.setCreateTime(LocalDateTime.now());
+		employee.setUpdateTime(LocalDateTime.now());
+		// 默认密码 123456 , 存储在 PasswordConstant 中
+		String encodePassword = PasswordUtil.encode(PasswordConstant.DEFAULT_PASSWORD);
+		employee.setPassword(encodePassword);
+
+		/// 设置当前记录创建人id 和修改人id
+		// TODO 需要改为当前登录用户的id
+		employee.setCreateUser(10L);
+		employee.setUpdateUser(10L);
+
+		employeeMapper.insert(employee);
+	}
 }

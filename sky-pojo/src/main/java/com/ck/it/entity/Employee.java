@@ -1,5 +1,6 @@
 package com.ck.it.entity;
 
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,7 +30,7 @@ public class Employee implements Serializable {
     private String sex;
 
     private String idNumber;
-
+	@TableLogic
     private Integer status;
 
     //@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
