@@ -1,6 +1,7 @@
 package com.ck.it.config;
 
 import com.ck.it.interceptor.JwtTokenAdminInterceptor;
+import com.ck.it.interceptor.JwtTokenUserInterceptor;
 import com.ck.it.json.JacksonObjectMapper;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
@@ -39,6 +40,9 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 	@Autowired
 	private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
 
+	@Autowired
+	private JwtTokenUserInterceptor jwtTokenUserInterceptor;
+
 	/**
 	 * 注册自定义拦截器
 	 *
@@ -49,6 +53,10 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 		registry.addInterceptor(jwtTokenAdminInterceptor)
 				.addPathPatterns("/admin/**")
 				.excludePathPatterns("/admin/employee/login");
+		registry.addInterceptor(jwtTokenUserInterceptor)
+				.addPathPatterns("/user/**")
+				.excludePathPatterns("/user/user/login")
+				.excludePathPatterns("/user/shop/status");
 	}
 
 //    /**
