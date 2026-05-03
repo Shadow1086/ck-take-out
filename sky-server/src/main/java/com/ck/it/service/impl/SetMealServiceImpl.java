@@ -8,6 +8,7 @@ import com.ck.it.entity.SetmealDish;
 import com.ck.it.mapper.SetmealDishMapper;
 import com.ck.it.mapper.SetmealMapper;
 import com.ck.it.service.SetMealService;
+import com.ck.it.vo.DishItemVO;
 import com.ck.it.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class SetMealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
 		List<SetmealDish> setmealDishes = setmealDishMapper.selectList(new LambdaQueryWrapper<SetmealDish>()
 				.in(SetmealDish::getSetmealId, ids));
 
-		Map<Long, List<SetmealDish>> dishMap = setmealDishes.stream().collect(Collectors.groupingBy(SetmealDish::getDishId));
+		Map<Long, List<SetmealDish>> dishMap = setmealDishes.stream().collect(Collectors.groupingBy(SetmealDish::getSetmealId));
 
 		return setmeals.stream().map(setmealDish -> {
 			SetmealVO setmealVO = new SetmealVO();
@@ -54,5 +55,18 @@ public class SetMealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
 			setmealVO.setSetmealDishes(dishMap.getOrDefault(setmealDish.getId(), List.of()));
 			return setmealVO;
 		}).toList();
+	}
+
+	/**
+	 * 根据套餐id查询包含的菜品
+	 *
+	 * @param id
+	 * @return {@link List }<{@link DishItemVO }>
+	 */
+	@Override
+	public List<DishItemVO> queryBySetMealId(Integer id) {
+		List<DishItemVO> dishItemVOS = setmealMapper.queryBySetMealId(id);
+
+		return dishItemVOS;
 	}
 }

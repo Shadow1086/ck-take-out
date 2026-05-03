@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ck.it.mapper.SetmealMapper">
+
+	<select id="queryBySetMealId" resultType="com.ck.it.vo.DishItemVO">
+		SELECT sd.name, sd.copies, dish.description, dish.image
+		FROM setmeal_dish sd
+			     LEFT JOIN dish ON dish.id = sd.dish_id
+		where sd.setmeal_id = #{id}
+	</select>
+</mapper>
