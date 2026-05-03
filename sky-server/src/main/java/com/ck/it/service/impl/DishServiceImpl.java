@@ -1,12 +1,17 @@
 package com.ck.it.service.impl;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.dto.DishDTO;
+import com.ck.it.dto.DishPageQueryDTO;
 import com.ck.it.entity.Dish;
 import com.ck.it.entity.DishFlavor;
 import com.ck.it.mapper.DishFlavorMapper;
 import com.ck.it.mapper.DishMapper;
+import com.ck.it.result.PageResult;
 import com.ck.it.service.DishService;
+import com.ck.it.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,9 +53,22 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 		Long id = dish.getId();
 		/// 向口味表插入n条数据
 		List<DishFlavor> flavors = dto.getFlavors();
-		if(flavors!=null && !flavors.isEmpty()){
+		if (flavors != null && !flavors.isEmpty()) {
 			flavors.forEach(flavor -> flavor.setDishId(id));
 			flavorMapper.insert(flavors);
 		}
+	}
+
+	@Override
+	public PageResult queryDishPage(DishPageQueryDTO dto) {
+		IPage<DishVO> page = new Page<>(dto.getPage(), dto.getPageSize());
+
+		IPage<DishVO> resultPage = dishMapper.queryPage(page, dto);
+
+		PageResult pageResult = new PageResult();
+		pageResult.setTotal(resultPage.getTotal());
+		pageResult.setRecords(resultPage.getRecords());
+
+		return pageResult;
 	}
 }

@@ -1,16 +1,15 @@
 package com.ck.it.controller.admin;
 
 import com.ck.it.dto.DishDTO;
+import com.ck.it.dto.DishPageQueryDTO;
+import com.ck.it.result.PageResult;
 import com.ck.it.result.Result;
 import com.ck.it.service.DishService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Scanner;
 import java.util.Arrays;
@@ -38,5 +37,13 @@ public class DishController {
 		dishService.saveWithFlavor(dto);
 
 		return Result.success();
+	}
+
+	@GetMapping("/page")
+	@Operation(summary = "分页查询菜品")
+	public Result<PageResult> queryDishPage(DishPageQueryDTO dto){
+		PageResult pageResult = dishService.queryDishPage(dto);
+
+		return Result.success(pageResult);
 	}
 }

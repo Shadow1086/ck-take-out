@@ -2,7 +2,9 @@ package com.ck.it.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ck.it.dto.DishDTO;
+import com.ck.it.dto.DishPageQueryDTO;
 import com.ck.it.entity.Dish;
+import com.ck.it.result.PageResult;
 
 /**
  * Package: com.ck.it.service
@@ -14,4 +16,6 @@ import com.ck.it.entity.Dish;
 public interface DishService extends IService<Dish> {
 
 	public void saveWithFlavor(DishDTO dto);
+
+	PageResult queryDishPage(DishPageQueryDTO dto);
 }
