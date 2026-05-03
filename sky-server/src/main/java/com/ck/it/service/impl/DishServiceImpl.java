@@ -6,14 +6,17 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.dto.DishDTO;
 import com.ck.it.dto.DishPageQueryDTO;
+import com.ck.it.entity.Category;
 import com.ck.it.entity.Dish;
 import com.ck.it.entity.DishFlavor;
+import com.ck.it.mapper.CategoryMapper;
 import com.ck.it.mapper.DishFlavorMapper;
 import com.ck.it.mapper.DishMapper;
 import com.ck.it.result.PageResult;
 import com.ck.it.service.DishService;
 import com.ck.it.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,8 +40,11 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 	@Autowired
 	private DishFlavorMapper flavorMapper;
 
+	@Autowired
+	private CategoryMapper categoryMapper;
+
 	/**
-	 *  新增菜品，以及菜品的口味
+	 * 新增菜品，以及菜品的口味
 	 *
 	 * @param dto
 	 */
@@ -95,5 +101,61 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 			return dishMapper.deleteByIds(idList);
 		}
 		return 0;
+	}
+
+	/**
+	 * 更新菜品信息
+	 *
+	 * @param dto
+	 */
+	@Override
+	@Transactional
+	public void updateDish(DishDTO dto) {
+		if (dto != null && dto.getId() != null) {
+			Dish dish = new Dish();
+			BeanUtils.copyProperties(dto, dish);
+
+			/// 修改菜品表的基本信息
+			if (dishMapper.updateById(dish)!=0) {
+				/// 删除口味再重新添加口味信息
+				flavorMapper.delete(new LambdaQueryWrapper<DishFlavor>().eq(DishFlavor::getDishId, dish.getId()));
+				List<DishFlavor> flavors = dto.getFlavors();
+				if (flavors != null && !flavors.isEmpty()) {
+					flavors.forEach(flavor -> flavor.setDishId(dish.getId()));
+					flavorMapper.insert(flavors);
+				}
+			}
+		}
+	}
+
+	/**
+	 * 根据id查询菜品信息
+	 *
+	 * @param id
+	 * @return {@link DishVO }
+	 */
+	@Override
+	public DishVO queryById(Long id) {
+		if (id != null) {
+			Dish dish = dishMapper.selectById(id);
+
+			if (dish != null) {
+				DishVO resultVo = new DishVO();
+				Category category = categoryMapper.selectOne(new LambdaQueryWrapper<Category>()
+						.select(Category::getName).eq(Category::getId, dish.getCategoryId()));
+
+				resultVo.setCategoryName(category.getName());
+				List<DishFlavor> dishFlavors = flavorMapper.selectList(
+						new LambdaQueryWrapper<DishFlavor>()
+								.eq(DishFlavor::getDishId, dish.getId()));
+
+				BeanUtils.copyProperties(dish, resultVo);
+				resultVo.setFlavors(dishFlavors);
+
+				return resultVo;
+			}
+			return null;
+		}
+		return null;
 	}
 }

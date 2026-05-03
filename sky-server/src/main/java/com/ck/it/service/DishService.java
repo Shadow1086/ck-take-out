@@ -5,6 +5,7 @@ import com.ck.it.dto.DishDTO;
 import com.ck.it.dto.DishPageQueryDTO;
 import com.ck.it.entity.Dish;
 import com.ck.it.result.PageResult;
+import com.ck.it.vo.DishVO;
 
 /**
  * Package: com.ck.it.service
@@ -20,4 +21,8 @@ public interface DishService extends IService<Dish> {
 	PageResult queryDishPage(DishPageQueryDTO dto);
 
 	Integer deleteDishes(String ids);
+
+	void updateDish(DishDTO dto);
+
+	DishVO queryById(Long id);
 }
