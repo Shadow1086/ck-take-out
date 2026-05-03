@@ -1,5 +1,6 @@
 package com.ck.it.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -35,8 +37,11 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 	@Autowired
 	private DishFlavorMapper flavorMapper;
 
-//	private
-
+	/**
+	 *  新增菜品，以及菜品的口味
+	 *
+	 * @param dto
+	 */
 	@Override
 	@Transactional
 	public void saveWithFlavor(DishDTO dto) {
@@ -70,5 +75,25 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 		pageResult.setRecords(resultPage.getRecords());
 
 		return pageResult;
+	}
+
+	/**
+	 * 批量删除菜品
+	 *
+	 * @param ids id1,id2,id3
+	 * @return {@link Integer }
+	 */
+	@Override
+	@Transactional
+	public Integer deleteDishes(String ids) {
+		if (ids != null && !ids.isBlank()) {
+			List<Long> idList = Arrays.stream(ids.split(","))
+					.map(Long::valueOf).toList();
+			flavorMapper.delete(
+					new LambdaQueryWrapper<DishFlavor>()
+							.in(DishFlavor::getDishId, idList));
+			return dishMapper.deleteByIds(idList);
+		}
+		return 0;
 	}
 }

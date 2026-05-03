@@ -18,4 +18,6 @@ public interface DishService extends IService<Dish> {
 	public void saveWithFlavor(DishDTO dto);
 
 	PageResult queryDishPage(DishPageQueryDTO dto);
+
+	Integer deleteDishes(String ids);
 }

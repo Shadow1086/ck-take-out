@@ -8,6 +8,7 @@ import com.ck.it.service.DishService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,5 +46,15 @@ public class DishController {
 		PageResult pageResult = dishService.queryDishPage(dto);
 
 		return Result.success(pageResult);
+	}
+
+	@DeleteMapping
+	@Operation(summary = "删除菜品")
+	public Result<Integer> deleteDishes(String ids){
+		Integer rows = dishService.deleteDishes(ids);
+		if(rows>=1){
+			return Result.success(rows);
+		}
+		return Result.error(null);
 	}
 }
