@@ -47,4 +47,6 @@ public interface CategoryService extends IService<Category> {
      * @return
      */
     List<Category> list(Integer type);
+
+	List<Category> queryType(Integer type);
 }

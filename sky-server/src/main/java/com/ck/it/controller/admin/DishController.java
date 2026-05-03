@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
  * {@code @Author} Liang-ht
  * {@code @Create} 2026-2026/5/2 22:18
  */
-@RestController
+@RestController("adminDishController")
 @RequestMapping("/admin/dish")
 @Slf4j
 @Tag(name = "菜品管理")

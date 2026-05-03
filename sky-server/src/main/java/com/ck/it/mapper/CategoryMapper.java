@@ -9,6 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper
 public interface CategoryMapper extends BaseMapper<Category> {
-	@AutoFill(OperationType.INSERT)
+//	@AutoFill(OperationType.INSERT)
 	int insert(Category category);
 }

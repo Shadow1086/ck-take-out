@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ck.it.constant.StatusConstant;
 import com.ck.it.dto.DishDTO;
 import com.ck.it.dto.DishPageQueryDTO;
 import com.ck.it.entity.Category;
@@ -23,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Package: com.ck.it.service.impl
@@ -116,7 +119,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 			BeanUtils.copyProperties(dto, dish);
 
 			/// 修改菜品表的基本信息
-			if (dishMapper.updateById(dish)!=0) {
+			if (dishMapper.updateById(dish) != 0) {
 				/// 删除口味再重新添加口味信息
 				flavorMapper.delete(new LambdaQueryWrapper<DishFlavor>().eq(DishFlavor::getDishId, dish.getId()));
 				List<DishFlavor> flavors = dto.getFlavors();
@@ -157,5 +160,32 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 			return null;
 		}
 		return null;
+	}
+
+	@Override
+	public List<DishVO> queryByCategoryId(Integer categoryId) {
+		List<Dish> dishes = dishMapper.selectList(
+				new LambdaQueryWrapper<Dish>()
+						.eq(Dish::getCategoryId, categoryId)
+						.eq(Dish::getStatus, StatusConstant.ENABLE));
+		if (dishes == null || dishes.isEmpty()) {
+			return List.of();
+		}
+		/// 将查询到的dish中的id提取出来
+		List<Long> dishids = dishes.stream().map(Dish::getId).toList();
+		/// 查询所有dish.id对应的口味
+		List<DishFlavor> flavors = flavorMapper.selectList(new LambdaQueryWrapper<DishFlavor>()
+				.in(DishFlavor::getDishId, dishids));
+		/// 将对应的口味和菜品对应存储到map中
+		Map<Long, List<DishFlavor>> flavorMap = flavors.stream()
+				.collect(Collectors.groupingBy(DishFlavor::getDishId));
+
+		return dishes.stream().map(dish -> {
+			/// 循环处理，将dish和口味封装为一个个vo对像
+			DishVO dishVo = new DishVO();
+			BeanUtils.copyProperties(dish, dishVo);
+			dishVo.setFlavors(flavorMap.getOrDefault(dish.getId(), List.of()));
+			return dishVo;
+		}).toList();
 	}
 }

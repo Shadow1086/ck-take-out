@@ -7,6 +7,8 @@ import com.ck.it.entity.Dish;
 import com.ck.it.result.PageResult;
 import com.ck.it.vo.DishVO;
 
+import java.util.List;
+
 /**
  * Package: com.ck.it.service
  * Description:
@@ -25,4 +27,6 @@ public interface DishService extends IService<Dish> {
 	void updateDish(DishDTO dto);
 
 	DishVO queryById(Long id);
+
+	List<DishVO> queryByCategoryId(Integer categoryId);
 }

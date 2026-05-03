@@ -65,10 +65,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 		IPage<Category> page = new Page<>(dto.getPage(), dto.getPageSize());
 
 		LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
-		wrapper.eq(dto.getType()!=null , Category::getType, dto.getType())
+		wrapper.eq(dto.getType() != null, Category::getType, dto.getType())
 				.like(dto.getName() != null && !dto.getName().isBlank(), Category::getName, dto.getName());
 
-		IPage<Category> resultPage =  categoryMapper.selectPage(page,wrapper);
+		IPage<Category> resultPage = categoryMapper.selectPage(page, wrapper);
 
 		PageResult pageResult = new PageResult();
 		pageResult.setTotal(resultPage.getTotal());
@@ -143,6 +143,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
 		LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
 		wrapper.eq(Category::getType, type);
 
+		return categoryMapper.selectList(wrapper);
+	}
+
+	@Override
+	public List<Category> queryType(Integer type) {
+		LambdaQueryWrapper<Category> wrapper = new LambdaQueryWrapper<>();
+		wrapper.eq(type != null, Category::getType, type)
+				.eq(Category::getStatus, StatusConstant.ENABLE)
+				.orderByDesc(Category::getSort);
 		return categoryMapper.selectList(wrapper);
 	}
 }
