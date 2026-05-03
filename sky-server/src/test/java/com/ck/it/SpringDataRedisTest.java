@@ -16,9 +16,9 @@ import java.util.concurrent.TimeUnit;
  * {@code @Author} Liang-ht
  * {@code @Create} 2026-2026/5/3 18:19
  */
-@SpringBootTest
+//@SpringBootTest
 public class SpringDataRedisTest {
-	@Autowired
+//	@Autowired
 	private RedisTemplate redisTemplate;
 
 	@Test
