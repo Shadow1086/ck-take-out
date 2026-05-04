@@ -1,6 +1,7 @@
 package com.ck.it.controller.user;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.ck.it.context.BaseContext;
 import com.ck.it.dto.ShoppingCartDTO;
 import com.ck.it.entity.ShoppingCart;
@@ -46,6 +47,14 @@ public class ShoppingCartController {
 
 		return Result.success(list);
 
+	}
+
+	@DeleteMapping("clean")
+	@Operation(summary = "清空购物车")
+	public Result<Object> clean(){
+		boolean remove = shoppingCartService.remove(new LambdaUpdateWrapper<ShoppingCart>()
+				.eq(ShoppingCart::getUserId, BaseContext.getCurrentId()));
+		return Result.success(remove);
 	}
 
 }
