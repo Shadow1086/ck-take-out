@@ -2,6 +2,7 @@ package com.ck.it.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.ddl.IDdl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.constant.StatusConstant;
@@ -187,5 +188,25 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 			dishVo.setFlavors(flavorMap.getOrDefault(dish.getId(), List.of()));
 			return dishVo;
 		}).toList();
+	}
+
+	/**
+	 * 菜品的起售与停售
+	 *
+	 * @param status
+	 * @param id
+	 * @return {@link Integer }
+	 */
+	@Override
+	public Integer updateStatus(Integer status, Long id) {
+		if(id!=null){
+			if(dishMapper.selectById(id)!= null){
+				Dish dish = new Dish();
+				dish.setStatus(status);
+				dish.setId(id);
+				return dishMapper.updateById(dish);
+			}
+		}
+		return 0;
 	}
 }

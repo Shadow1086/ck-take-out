@@ -29,4 +29,13 @@ public interface DishService extends IService<Dish> {
 	DishVO queryById(Long id);
 
 	List<DishVO> queryByCategoryId(Integer categoryId);
+
+	/**
+	 *  菜品的起售与停售
+	 *
+	 * @param status
+	 * @param id
+	 * @return {@link Integer }
+	 */
+	Integer updateStatus(Integer status, Long id);
 }
