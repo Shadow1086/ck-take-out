@@ -1,17 +1,16 @@
 package com.ck.it.controller.user;
 
+import com.ck.it.dto.OrdersPaymentDTO;
 import com.ck.it.dto.OrdersSubmitDTO;
 import com.ck.it.result.Result;
 import com.ck.it.service.OrderService;
+import com.ck.it.vo.OrderPaymentVO;
 import com.ck.it.vo.OrderSubmitVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Scanner;
 import java.util.Arrays;
@@ -44,5 +43,14 @@ public class OrderController {
 		OrderSubmitVO submit = orderService.submit(dto);
 
 		return Result.success(submit);
+	}
+
+
+	@PutMapping("/payment")
+	@Operation(summary = "订单支付")
+	public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO dto){
+		log.info("订单支付：{}",dto);
+		OrderPaymentVO orderPaymentVO = orderService.payment(dto);
+		return Result.success(orderPaymentVO);
 	}
 }

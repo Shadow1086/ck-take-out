@@ -1,8 +1,10 @@
 package com.ck.it.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ck.it.dto.OrdersPaymentDTO;
 import com.ck.it.dto.OrdersSubmitDTO;
 import com.ck.it.entity.Orders;
+import com.ck.it.vo.OrderPaymentVO;
 import com.ck.it.vo.OrderSubmitVO;
 
 /**
@@ -14,4 +16,6 @@ import com.ck.it.vo.OrderSubmitVO;
  */
 public interface OrderService extends IService<Orders> {
 	OrderSubmitVO submit(OrdersSubmitDTO dto);
+
+	OrderPaymentVO payment(OrdersPaymentDTO dto);
 }

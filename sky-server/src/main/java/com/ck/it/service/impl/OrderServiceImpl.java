@@ -5,18 +5,24 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.constant.MessageConstant;
 import com.ck.it.context.BaseContext;
+import com.ck.it.dto.OrdersPaymentDTO;
 import com.ck.it.dto.OrdersSubmitDTO;
 import com.ck.it.entity.AddressBook;
 import com.ck.it.entity.OrderDetail;
 import com.ck.it.entity.Orders;
 import com.ck.it.entity.ShoppingCart;
 import com.ck.it.exception.AddressBookBusinessException;
+import com.ck.it.exception.OrderBusinessException;
 import com.ck.it.exception.ShoppingCartBusinessException;
 import com.ck.it.mapper.OrderDetailMapper;
 import com.ck.it.mapper.OrderMapper;
+import com.ck.it.mapper.UserMapper;
+import com.ck.it.properties.WeChatProperties;
 import com.ck.it.service.AddressBookService;
 import com.ck.it.service.OrderService;
 import com.ck.it.service.ShoppingCartService;
+import com.ck.it.utils.WeChatPayUtil;
+import com.ck.it.vo.OrderPaymentVO;
 import com.ck.it.vo.OrderSubmitVO;
 import com.ck.it.vo.OrderVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,6 +53,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 	private AddressBookService addressBookService;
 	@Autowired
 	private ShoppingCartService shoppingCartService;
+
+	@Autowired
+	private WeChatProperties weChatProperties;
+	@Autowired
+	private WeChatPayUtil weChatPayUtil;
+	@Autowired
+	private UserMapper userMapper;
 
 	@Override
 	@Transactional
@@ -103,5 +116,59 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 				.orderAmount(orders.getAmount())
 				.orderTime(orders.getOrderTime()).build();
 		return resultVo;
+	}
+
+	/**
+	 *  微信支付
+	 *
+	 * @param dto
+	 * @return {@link OrderPaymentVO }
+	 */
+	@Override
+	@Transactional
+	@Operation(summary = "用户订单支付")
+	public OrderPaymentVO payment(OrdersPaymentDTO dto) {
+		Orders orders = orderMapper.selectOne(new LambdaQueryWrapper<Orders>()
+				.eq(Orders::getNumber, dto.getOrderNumber())
+				.eq(Orders::getUserId, BaseContext.getCurrentId()));
+		if(orders==null){
+			throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+		}
+		if(Orders.PAID.equals(orders.getPayStatus())){
+			/// 已支付
+			return OrderPaymentVO.builder().build();
+		}
+		if(!Orders.PENDING_PAYMENT.equals(orders.getStatus())){
+			/// 订单状态不等于待付款
+			throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+		}
+		if(weChatProperties.isMockPayment()){
+			return mockPayment(orders);
+		}
+
+		return weChatPayment(orders);
+	}
+
+	/**
+	 *  模拟支付流程
+	 *
+	 * @param orders
+	 * @return {@link OrderPaymentVO }
+	 */
+	private OrderPaymentVO mockPayment(Orders orders){
+		Orders build = Orders.builder()
+				.id(orders.getId())
+				/// 设置状态为：待接单
+				.status(Orders.TO_BE_CONFIRMED)
+				/// 设置支付状态为：已支付
+				.payStatus(Orders.PAID)
+				.checkoutTime(LocalDateTime.now())
+				.build();
+		orderMapper.updateById(build);
+		return OrderPaymentVO.builder().build();
+	}
+
+	private OrderPaymentVO weChatPayment(Orders orders){
+		return null;
 	}
 }
