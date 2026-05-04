@@ -7,6 +7,7 @@ import com.ck.it.entity.Orders;
 import com.ck.it.result.PageResult;
 import com.ck.it.vo.OrderPaymentVO;
 import com.ck.it.vo.OrderSubmitVO;
+import com.ck.it.vo.OrderVO;
 
 /**
  * Package: com.ck.it.service
@@ -29,4 +30,6 @@ public interface OrderService extends IService<Orders> {
 	 * @return {@link PageResult }
 	 */
 	PageResult historyOrders(Integer page, Integer pageSize, Integer status);
+
+	OrderVO orderDetail(Long id);
 }

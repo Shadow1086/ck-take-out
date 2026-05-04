@@ -7,6 +7,7 @@ import com.ck.it.result.Result;
 import com.ck.it.service.OrderService;
 import com.ck.it.vo.OrderPaymentVO;
 import com.ck.it.vo.OrderSubmitVO;
+import com.ck.it.vo.OrderVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -61,5 +62,20 @@ public class OrderController {
 		PageResult pageResult = orderService.historyOrders(page, pageSize, status);
 
 		return Result.success(pageResult);
+	}
+
+	/**
+	 *  查询订单详情
+	 *
+	 * @param id
+	 * @return {@link Result }<{@link OrderVO }>
+	 */
+	@GetMapping("orderDetail/{id}")
+	@Operation(summary = "查询订单详情")
+	public Result<OrderVO> orderDetail(@PathVariable("id")Long id){
+		log.info("订单详情查询，id:{}",id);
+		OrderVO orderVO = orderService.orderDetail(id);
+
+		return Result.success(orderVO);
 	}
 }

@@ -135,7 +135,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		LambdaQueryWrapper<Orders> wrapper = new LambdaQueryWrapper<>();
 		wrapper.eq(Orders::getUserId, BaseContext.getCurrentId());
 		if (status != null) {
-			/// TODO 前端传入1(待付款)但是展示的是6(以取消)的数据
+			/// TODO 前端传入1(待付款)但是展示的是6(以取消)的数据，应该是数据库没有更新status字段
 			wrapper.eq(Orders::getStatus, status);
 		}
 		wrapper.orderByDesc(Orders::getOrderTime);
@@ -157,6 +157,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		result.setRecords(recordVos);
 
 		return result;
+	}
+
+	@Override
+	public OrderVO orderDetail(Long id) {
+		Orders orders = orderMapper.selectById(id);
+		OrderVO orderVO = new OrderVO();
+		if(orders!=null && orders.getUserId().equals(BaseContext.getCurrentId())){
+			BeanUtils.copyProperties(orders,orderVO);
+			List<OrderDetail> details = orderDetailMapper.selectList(new LambdaQueryWrapper<OrderDetail>()
+					.eq(OrderDetail::getOrderId, orders.getId()));
+			orderVO.setOrderDetailList(details);
+		}else{
+			return null;
+		}
+		return orderVO;
 	}
 
 	/**
