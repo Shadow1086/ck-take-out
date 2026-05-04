@@ -2,6 +2,7 @@ package com.ck.it.controller.user;
 
 import com.ck.it.dto.OrdersPaymentDTO;
 import com.ck.it.dto.OrdersSubmitDTO;
+import com.ck.it.result.PageResult;
 import com.ck.it.result.Result;
 import com.ck.it.service.OrderService;
 import com.ck.it.vo.OrderPaymentVO;
@@ -11,9 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Scanner;
-import java.util.Arrays;
 
 /**
  * Package: com.ck.it.controller.user
@@ -31,15 +29,15 @@ public class OrderController {
 	private OrderService orderService;
 
 	/**
-	 *  用户下单接口
+	 * 用户下单接口
 	 *
 	 * @param dto
 	 * @return {@link Result }<{@link OrderSubmitVO }>
 	 */
 	@PostMapping("/submit")
 	@Operation(summary = "用户下单接口")
-	public Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO dto){
-		log.info("用户下单：{}",dto);
+	public Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO dto) {
+		log.info("用户下单：{}", dto);
 		OrderSubmitVO submit = orderService.submit(dto);
 
 		return Result.success(submit);
@@ -48,9 +46,20 @@ public class OrderController {
 
 	@PutMapping("/payment")
 	@Operation(summary = "订单支付")
-	public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO dto){
-		log.info("订单支付：{}",dto);
+	public Result<OrderPaymentVO> payment(@RequestBody OrdersPaymentDTO dto) {
+		log.info("订单支付：{}", dto);
 		OrderPaymentVO orderPaymentVO = orderService.payment(dto);
 		return Result.success(orderPaymentVO);
+	}
+
+	@GetMapping("/historyOrders")
+	@Operation(summary = "历史订单查询")
+	public Result<PageResult> historyOrders(@RequestParam("page") Integer page,
+	                                        @RequestParam("pageSize") Integer pageSize,
+	                                        @RequestParam(value = "status", required = false) Integer status) {
+		log.info("历史订单查询");
+		PageResult pageResult = orderService.historyOrders(page, pageSize, status);
+
+		return Result.success(pageResult);
 	}
 }

@@ -2,6 +2,8 @@ package com.ck.it.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.constant.MessageConstant;
 import com.ck.it.context.BaseContext;
@@ -18,6 +20,7 @@ import com.ck.it.mapper.OrderDetailMapper;
 import com.ck.it.mapper.OrderMapper;
 import com.ck.it.mapper.UserMapper;
 import com.ck.it.properties.WeChatProperties;
+import com.ck.it.result.PageResult;
 import com.ck.it.service.AddressBookService;
 import com.ck.it.service.OrderService;
 import com.ck.it.service.ShoppingCartService;
@@ -26,7 +29,6 @@ import com.ck.it.vo.OrderPaymentVO;
 import com.ck.it.vo.OrderSubmitVO;
 import com.ck.it.vo.OrderVO;
 import io.swagger.v3.oas.annotations.Operation;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -69,21 +71,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 
 		/// 地址簿为空
 		AddressBook addressBook = addressBookService.getById(dto.getAddressBookId());
-		if(addressBook==null){
+		if (addressBook == null) {
 			throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
 		}
 		/// 购物车数据为空
 		ShoppingCart shoppingCart = new ShoppingCart();
 		List<ShoppingCart> list = shoppingCartService.list(new LambdaQueryWrapper<ShoppingCart>()
 				.eq(ShoppingCart::getUserId, BaseContext.getCurrentId()));
-		if(list==null || list.isEmpty()){
+		if (list == null || list.isEmpty()) {
 			throw new ShoppingCartBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
 		}
 		/// 向订单表插入一条数据
 		Orders orders = new Orders();
 		// addressBookId,payMethod,remark,estimatedDeliveryTime
 		// DeliveryStatus,TablewareNumber,tableWareStatus,PackAmount,Amount
-		BeanUtils.copyProperties(dto,orders);
+		BeanUtils.copyProperties(dto, orders);
 
 		// number status,userId,orderTime,patStatus,userName,Phone,Address
 		// checkoutTime,consignee,cancelReason,rejectionReason,cancelTime
@@ -102,14 +104,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		for (ShoppingCart cart : list) {
 			OrderDetail detail = new OrderDetail();
 
-			BeanUtils.copyProperties(cart,detail);
+			BeanUtils.copyProperties(cart, detail);
 			detail.setOrderId(orders.getId());
 			details.add(detail);
 		}
 		orderDetailMapper.insert(details);
 		///清空当前用户的购物车数据
 		shoppingCartService.remove(new LambdaUpdateWrapper<ShoppingCart>()
-				.eq(ShoppingCart::getUserId,BaseContext.getCurrentId()));
+				.eq(ShoppingCart::getUserId, BaseContext.getCurrentId()));
 		/// 封装vo返回结果
 		OrderSubmitVO resultVo = OrderSubmitVO.builder().id(orders.getId())
 				.orderNumber(orders.getNumber())
@@ -119,7 +121,46 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 	}
 
 	/**
-	 *  微信支付
+	 * 查询历史订单
+	 *
+	 * @param page
+	 * @param pageSize
+	 * @param status
+	 * @return {@link PageResult }
+	 */
+	@Override
+	public PageResult historyOrders(Integer page, Integer pageSize, Integer status) {
+		IPage<Orders> pageResult = new Page<>(page, pageSize);
+
+		LambdaQueryWrapper<Orders> wrapper = new LambdaQueryWrapper<>();
+		wrapper.eq(Orders::getUserId, BaseContext.getCurrentId());
+		if (status != null) {
+			/// TODO 前端传入1(待付款)但是展示的是6(以取消)的数据
+			wrapper.eq(Orders::getStatus, status);
+		}
+		wrapper.orderByDesc(Orders::getOrderTime);
+		IPage<Orders> ordersIPage = orderMapper.selectPage(pageResult, wrapper);
+
+		PageResult result = new PageResult();
+		result.setTotal(ordersIPage.getTotal());
+
+		List<Orders> records = ordersIPage.getRecords();
+		List<OrderVO> recordVos = new ArrayList<>();
+		for (Orders record : records) {
+			OrderVO orderVO = new OrderVO();
+			BeanUtils.copyProperties(record, orderVO);
+			List<OrderDetail> details = orderDetailMapper.selectList(new LambdaQueryWrapper<OrderDetail>()
+					.eq(OrderDetail::getOrderId, record.getId()));
+			orderVO.setOrderDetailList(details);
+			recordVos.add(orderVO);
+		}
+		result.setRecords(recordVos);
+
+		return result;
+	}
+
+	/**
+	 * 微信支付
 	 *
 	 * @param dto
 	 * @return {@link OrderPaymentVO }
@@ -131,18 +172,18 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		Orders orders = orderMapper.selectOne(new LambdaQueryWrapper<Orders>()
 				.eq(Orders::getNumber, dto.getOrderNumber())
 				.eq(Orders::getUserId, BaseContext.getCurrentId()));
-		if(orders==null){
+		if (orders == null) {
 			throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
 		}
-		if(Orders.PAID.equals(orders.getPayStatus())){
+		if (Orders.PAID.equals(orders.getPayStatus())) {
 			/// 已支付
 			return OrderPaymentVO.builder().build();
 		}
-		if(!Orders.PENDING_PAYMENT.equals(orders.getStatus())){
+		if (!Orders.PENDING_PAYMENT.equals(orders.getStatus())) {
 			/// 订单状态不等于待付款
 			throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
 		}
-		if(weChatProperties.isMockPayment()){
+		if (weChatProperties.isMockPayment()) {
 			return mockPayment(orders);
 		}
 
@@ -150,12 +191,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 	}
 
 	/**
-	 *  模拟支付流程
+	 * 模拟支付流程
 	 *
 	 * @param orders
 	 * @return {@link OrderPaymentVO }
 	 */
-	private OrderPaymentVO mockPayment(Orders orders){
+	private OrderPaymentVO mockPayment(Orders orders) {
 		Orders build = Orders.builder()
 				.id(orders.getId())
 				/// 设置状态为：待接单
@@ -168,7 +209,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		return OrderPaymentVO.builder().build();
 	}
 
-	private OrderPaymentVO weChatPayment(Orders orders){
+	private OrderPaymentVO weChatPayment(Orders orders) {
 		return null;
 	}
 }
