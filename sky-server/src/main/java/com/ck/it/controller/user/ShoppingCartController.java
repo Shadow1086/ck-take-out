@@ -1,16 +1,18 @@
 package com.ck.it.controller.user;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.ck.it.context.BaseContext;
 import com.ck.it.dto.ShoppingCartDTO;
+import com.ck.it.entity.ShoppingCart;
 import com.ck.it.result.Result;
 import com.ck.it.service.ShoppingCartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Package: com.ck.it.controller.user
@@ -29,11 +31,21 @@ public class ShoppingCartController {
 
 	@PostMapping("/add")
 	@Operation(summary = "添加购物车")
-	public Result add(@RequestBody ShoppingCartDTO dto){
-		log.info("添加购物车，商品信息：{}",dto);
+	public Result add(@RequestBody ShoppingCartDTO dto) {
+		log.info("添加购物车，商品信息：{}", dto);
 		shoppingCartService.add(dto);
 
 		return Result.success();
+	}
+
+	@GetMapping("list")
+	@Operation(summary = "查看购物车")
+	public Result<List<ShoppingCart>> list() {
+		List<ShoppingCart> list = shoppingCartService.list(new LambdaQueryWrapper<ShoppingCart>()
+				.eq(ShoppingCart::getUserId, BaseContext.getCurrentId()));
+
+		return Result.success(list);
+
 	}
 
 }
