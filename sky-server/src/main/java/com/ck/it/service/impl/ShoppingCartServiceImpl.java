@@ -1,5 +1,6 @@
 package com.ck.it.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.context.BaseContext;
 import com.ck.it.dto.ShoppingCartDTO;
@@ -32,6 +33,46 @@ public class ShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sho
 	private DishMapper dishMapper;
 	@Autowired
 	private SetmealMapper setmealMapper;
+
+	@Override
+	@Transactional
+	public Integer removeItem(ShoppingCartDTO dto) {
+
+		ShoppingCart shoppingCart = new ShoppingCart();
+		BeanUtils.copyProperties(dto, shoppingCart);
+		List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+
+		if (list != null && !list.isEmpty()) {
+			/// 如果数据库中有该商品
+			ShoppingCart shoppingCart1 = list.getFirst();
+			if (shoppingCart1.getNumber() > 1) {
+				/// 如果有多份
+				shoppingCart1.setNumber(shoppingCart1.getNumber() - 1);
+				return shoppingCartMapper.updateById(shoppingCart1);
+			}
+			/// 如果只有一份
+			LambdaUpdateWrapper<ShoppingCart> wrapper = new LambdaUpdateWrapper<ShoppingCart>()
+					.eq(ShoppingCart::getUserId, BaseContext.getCurrentId());
+
+			if (dto.getDishId() == null) {
+				/// 如果是套餐
+				wrapper.eq(ShoppingCart::getSetmealId, dto.getSetmealId())
+						.isNull(ShoppingCart::getDishId);
+			} else {
+				/// 如果是单品
+				wrapper.eq(ShoppingCart::getDishId, dto.getDishId())
+						.isNull(ShoppingCart::getSetmealId);
+			}
+
+			if (dto.getDishFlavor() != null) {
+				wrapper.eq(ShoppingCart::getDishFlavor, dto.getDishFlavor());
+			} else {
+				wrapper.isNull(ShoppingCart::getDishFlavor);
+			}
+			return shoppingCartMapper.delete(wrapper);
+		}
+		return null;
+	}
 
 	/**
 	 * 添加购物车

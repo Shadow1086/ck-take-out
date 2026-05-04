@@ -23,4 +23,6 @@ public interface ShoppingCartService extends IService<ShoppingCart> {
 	 * @param dto
 	 */
 	void add(ShoppingCartDTO dto);
+
+	Integer removeItem(ShoppingCartDTO dto);
 }

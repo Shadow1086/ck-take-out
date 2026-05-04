@@ -46,15 +46,20 @@ public class ShoppingCartController {
 				.eq(ShoppingCart::getUserId, BaseContext.getCurrentId()));
 
 		return Result.success(list);
-
 	}
 
 	@DeleteMapping("clean")
 	@Operation(summary = "清空购物车")
-	public Result<Object> clean(){
+	public Result<Object> clean() {
 		boolean remove = shoppingCartService.remove(new LambdaUpdateWrapper<ShoppingCart>()
 				.eq(ShoppingCart::getUserId, BaseContext.getCurrentId()));
 		return Result.success(remove);
 	}
 
+	@PostMapping("sub")
+	@Operation(summary = "删除购物车中某一商品")
+	public Result sub(@RequestBody ShoppingCartDTO dto) {
+		log.info("删除购物车中商品：{}", dto);
+		return Result.success(shoppingCartService.removeItem(dto));
+	}
 }
