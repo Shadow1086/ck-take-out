@@ -1,5 +1,6 @@
 package com.ck.it.controller.admin;
 
+import com.ck.it.dto.OrdersConfirmDTO;
 import com.ck.it.dto.OrdersPageQueryDTO;
 import com.ck.it.dto.OrdersRejectionDTO;
 import com.ck.it.result.PageResult;
@@ -84,5 +85,20 @@ public class OrderController {
 		OrderStatisticsVO statistics = orderService.statistics();
 
 		return Result.success(statistics);
+	}
+
+	/**
+	 * 接单
+	 *
+	 * @param dto
+	 * @return {@link Result }
+	 */
+	@PutMapping("/confirm")
+	@Operation(summary = "接单")
+	public Result<Boolean> confirm(@RequestBody OrdersConfirmDTO dto) {
+		log.info("商家开始接单:{}", dto);
+		boolean confirm = orderService.confirm(dto);
+
+		return Result.success(confirm);
 	}
 }

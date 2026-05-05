@@ -7,10 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.constant.MessageConstant;
 import com.ck.it.context.BaseContext;
-import com.ck.it.dto.OrdersPageQueryDTO;
-import com.ck.it.dto.OrdersPaymentDTO;
-import com.ck.it.dto.OrdersRejectionDTO;
-import com.ck.it.dto.OrdersSubmitDTO;
+import com.ck.it.dto.*;
 import com.ck.it.entity.AddressBook;
 import com.ck.it.entity.OrderDetail;
 import com.ck.it.entity.Orders;
@@ -380,6 +377,27 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		orderStatisticsVO.setToBeConfirmed(toBeConfirmed.intValue());
 
 		return orderStatisticsVO;
+	}
+
+	/**
+	 * 接单
+	 *
+	 * @param dto
+	 * @return boolean
+	 */
+	@Override
+	public boolean confirm(OrdersConfirmDTO dto) {
+		Long id = dto.getId();
+		Orders orders = orderMapper.selectById(id);
+		if (orders == null) {
+			throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+		}
+		if (!orders.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+			throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+		}
+		orders.setStatus(Orders.CONFIRMED);
+		int i = orderMapper.updateById(orders);
+		return i == 1;
 	}
 
 	/**

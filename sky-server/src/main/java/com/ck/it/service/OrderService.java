@@ -1,10 +1,7 @@
 package com.ck.it.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.ck.it.dto.OrdersPageQueryDTO;
-import com.ck.it.dto.OrdersPaymentDTO;
-import com.ck.it.dto.OrdersRejectionDTO;
-import com.ck.it.dto.OrdersSubmitDTO;
+import com.ck.it.dto.*;
 import com.ck.it.entity.Orders;
 import com.ck.it.result.PageResult;
 import com.ck.it.vo.OrderPaymentVO;
@@ -82,4 +79,12 @@ public interface OrderService extends IService<Orders> {
 	 * @return {@link OrderStatisticsVO }
 	 */
 	OrderStatisticsVO statistics();
+
+	/**
+	 * 接单
+	 *
+	 * @param dto
+	 * @return boolean
+	 */
+	boolean confirm(OrdersConfirmDTO dto);
 }
