@@ -1,12 +1,14 @@
 package com.ck.it.controller.admin;
 
 import com.ck.it.dto.OrdersPageQueryDTO;
+import com.ck.it.dto.OrdersRejectionDTO;
 import com.ck.it.result.PageResult;
 import com.ck.it.result.Result;
 import com.ck.it.service.OrderService;
 import com.ck.it.vo.OrderVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController("adminOrderController")
 @RequestMapping("/admin/order")
 @Tag(name = "管理端订单相关接口")
+@Slf4j
 public class OrderController {
 
 	@Autowired
@@ -52,5 +55,20 @@ public class OrderController {
 		PageResult pageResult = orderService.conditionSearch(dto);
 
 		return Result.success(pageResult);
+	}
+
+	/**
+	 * 商家拒单
+	 *
+	 * @param dto
+	 * @return {@link Result }<{@link Boolean }>
+	 */
+	@Operation(summary = "拒单")
+	@PutMapping("/rejection")
+	public Result<Boolean> rejection(@RequestBody OrdersRejectionDTO dto){
+		log.info("商家拒单:{}",dto);
+		boolean rejection = orderService.rejection(dto);
+
+		return Result.success(rejection);
 	}
 }

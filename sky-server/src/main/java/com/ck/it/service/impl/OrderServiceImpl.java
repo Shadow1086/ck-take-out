@@ -9,6 +9,7 @@ import com.ck.it.constant.MessageConstant;
 import com.ck.it.context.BaseContext;
 import com.ck.it.dto.OrdersPageQueryDTO;
 import com.ck.it.dto.OrdersPaymentDTO;
+import com.ck.it.dto.OrdersRejectionDTO;
 import com.ck.it.dto.OrdersSubmitDTO;
 import com.ck.it.entity.AddressBook;
 import com.ck.it.entity.OrderDetail;
@@ -38,6 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Package: com.ck.it.service.impl
@@ -319,7 +321,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 			wrapper.eq(Orders::getNumber, dto.getNumber());
 		}
 		if (dto.getPhone() != null) {
-			wrapper.eq(Orders::getPhone, dto.getPhone());
+			wrapper.like(Orders::getPhone, dto.getPhone());
 		}
 		if (dto.getStatus() != null) {
 			wrapper.eq(Orders::getStatus, dto.getStatus());
@@ -329,6 +331,33 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		pageResult.setTotal(ordersIPage.getTotal());
 		pageResult.setRecords(ordersIPage.getRecords());
 		return pageResult;
+	}
+
+	/**
+	 * 管理端拒单
+	 *
+	 * @param dto
+	 * @return boolean
+	 */
+	@Override
+	public boolean rejection(OrdersRejectionDTO dto) {
+		Long id = dto.getId();
+		String rejectionReason = dto.getRejectionReason();
+		Orders orders = orderMapper.selectById(id);
+		if (orders == null) {
+			throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+		}
+		if (!Objects.equals(orders.getStatus(), Orders.TO_BE_CONFIRMED)) {
+			throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+		}
+		orders.setStatus(Orders.CANCELLED);
+		orders.setCancelReason(rejectionReason);
+		if (orders.getPayStatus().equals(Orders.PAID)) {
+			/// TODO 退款
+		}
+		int i = orderMapper.updateById(orders);
+
+		return i == 1;
 	}
 
 	/**
