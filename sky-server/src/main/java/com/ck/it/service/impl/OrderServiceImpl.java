@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.constant.MessageConstant;
 import com.ck.it.context.BaseContext;
+import com.ck.it.dto.OrdersPageQueryDTO;
 import com.ck.it.dto.OrdersPaymentDTO;
 import com.ck.it.dto.OrdersSubmitDTO;
 import com.ck.it.entity.AddressBook;
@@ -220,7 +221,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		Orders orders = orderMapper.selectById(id);
 		Long userId = BaseContext.getCurrentId();
 
-		if(orders==null){
+		if (orders == null) {
 			throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
 		}
 		if (!orders.getUserId().equals(userId)) {
@@ -235,7 +236,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 
 		List<OrderDetail> details = orderDetailMapper.selectList(new LambdaQueryWrapper<OrderDetail>()
 				.eq(OrderDetail::getOrderId, orders.getId()));
-		if(details==null || details.isEmpty()){
+		if (details == null || details.isEmpty()) {
 			return false;
 		}
 		for (OrderDetail detail : details) {
@@ -266,6 +267,68 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 			}
 		}
 		return shoppingCartService.saveBatch(carts);
+	}
+
+	/**
+	 * 管理端查询订单详情
+	 *
+	 * @param id
+	 * @return {@link OrderVO }
+	 */
+	@Override
+	public OrderVO queryDetail(Long id) {
+		if (id == null) {
+			throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+		}
+
+		Orders orders = orderMapper.selectById(id);
+		if (orders == null) {
+			throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+		}
+		if (!orders.getUserId().equals(BaseContext.getCurrentId())) {
+			return null;
+		}
+		OrderVO orderVO = new OrderVO();
+		BeanUtils.copyProperties(orders, orderVO);
+		List<OrderDetail> details = orderDetailMapper.selectList(new LambdaQueryWrapper<OrderDetail>()
+				.eq(OrderDetail::getOrderId, orders.getId()));
+		orderVO.setOrderDetailList(details);
+
+		return orderVO;
+	}
+
+
+	/**
+	 * 管理端订单搜索
+	 *
+	 * @param dto
+	 * @return {@link PageResult }
+	 */
+	@Override
+	public PageResult conditionSearch(OrdersPageQueryDTO dto) {
+		IPage<Orders> queryPage = new Page<>(dto.getPage(), dto.getPageSize());
+		LambdaQueryWrapper<Orders> wrapper = new LambdaQueryWrapper<>();
+//		wrapper.eq(Orders::getUserId, BaseContext.getCurrentId());
+		if (dto.getBeginTime() != null) {
+			wrapper.ge(Orders::getOrderTime, dto.getBeginTime());
+		}
+		if (dto.getEndTime() != null) {
+			wrapper.le(Orders::getOrderTime, dto.getEndTime());
+		}
+		if (dto.getNumber() != null) {
+			wrapper.eq(Orders::getNumber, dto.getNumber());
+		}
+		if (dto.getPhone() != null) {
+			wrapper.eq(Orders::getPhone, dto.getPhone());
+		}
+		if (dto.getStatus() != null) {
+			wrapper.eq(Orders::getStatus, dto.getStatus());
+		}
+		IPage<Orders> ordersIPage = orderMapper.selectPage(queryPage, wrapper);
+		PageResult pageResult = new PageResult();
+		pageResult.setTotal(ordersIPage.getTotal());
+		pageResult.setRecords(ordersIPage.getRecords());
+		return pageResult;
 	}
 
 	/**

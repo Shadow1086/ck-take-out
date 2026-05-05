@@ -1,6 +1,7 @@
 package com.ck.it.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ck.it.dto.OrdersPageQueryDTO;
 import com.ck.it.dto.OrdersPaymentDTO;
 import com.ck.it.dto.OrdersSubmitDTO;
 import com.ck.it.entity.Orders;
@@ -48,4 +49,20 @@ public interface OrderService extends IService<Orders> {
 	 * @return boolean
 	 */
 	boolean repetition(Long id);
+
+	/**
+	 *  管理端查询订单详情
+	 *
+	 * @param id
+	 * @return {@link OrderVO }
+	 */
+	OrderVO queryDetail(Long id);
+
+	/**
+	 *  管理端订单搜索
+	 *
+	 * @param dto
+	 * @return {@link PageResult }
+	 */
+	PageResult conditionSearch(OrdersPageQueryDTO dto);
 }

@@ -106,4 +106,12 @@ public class OrderController {
 		boolean repetition = orderService.repetition(id);
 		return Result.success(repetition);
 	}
+
+	@GetMapping("/reminder/{id}")
+	@Operation(summary = "用户催单")
+	public Result reminder(@PathVariable("id")Long id){
+
+
+		return Result.success();
+	}
 }
