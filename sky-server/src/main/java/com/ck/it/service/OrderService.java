@@ -32,4 +32,12 @@ public interface OrderService extends IService<Orders> {
 	PageResult historyOrders(Integer page, Integer pageSize, Integer status);
 
 	OrderVO orderDetail(Long id);
+
+	/**
+	 *  用户取消订单
+	 *
+	 * @param id
+	 * @return boolean
+	 */
+	boolean cancelOrder(Long id);
 }

@@ -159,6 +159,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		return result;
 	}
 
+	/**
+	 *  订单详情
+	 *
+	 * @param id
+	 * @return {@link OrderVO }
+	 */
 	@Override
 	public OrderVO orderDetail(Long id) {
 		Orders orders = orderMapper.selectById(id);
@@ -172,6 +178,28 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 			return null;
 		}
 		return orderVO;
+	}
+
+	/**
+	 * 用户取消订单
+	 *
+	 * @param id
+	 * @return boolean
+	 */
+	@Override
+	public boolean cancelOrder(Long id) {
+		/// 验证订单所属用户是否为当前用户
+		Orders orders = orderMapper.selectById(id);
+		if(!orders.getUserId().equals(BaseContext.getCurrentId())){
+//			throw new OrderBusinessException(MessageConstant.)
+			return false;
+		}
+		/// 删除数据库中的Order和OrderDetail
+		orderMapper.deleteById(id);
+		orderDetailMapper.delete(new LambdaQueryWrapper<OrderDetail>()
+				.eq(OrderDetail::getOrderId,id));
+
+		return true;
 	}
 
 	/**

@@ -65,17 +65,31 @@ public class OrderController {
 	}
 
 	/**
-	 *  查询订单详情
+	 * 查询订单详情
 	 *
 	 * @param id
 	 * @return {@link Result }<{@link OrderVO }>
 	 */
 	@GetMapping("orderDetail/{id}")
 	@Operation(summary = "查询订单详情")
-	public Result<OrderVO> orderDetail(@PathVariable("id")Long id){
-		log.info("订单详情查询，id:{}",id);
+	public Result<OrderVO> orderDetail(@PathVariable("id") Long id) {
+		log.info("订单详情查询，id:{}", id);
 		OrderVO orderVO = orderService.orderDetail(id);
 
 		return Result.success(orderVO);
+	}
+
+	/**
+	 *  用户取消订单
+	 *
+	 * @param id
+	 * @return {@link Result }<{@link Boolean }>
+	 */
+	@PutMapping("/cancel/{id}")
+	@Operation(summary = "取消订单")
+	public Result<Boolean> cancelOrder(@PathVariable("id") Long id) {
+		log.info("用户取消订单，订单id:{}", id);
+		boolean b = orderService.cancelOrder(id);
+		return Result.success(b);
 	}
 }
