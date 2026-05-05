@@ -81,10 +81,10 @@ public interface OrderService extends IService<Orders> {
 	OrderStatisticsVO statistics();
 
 	/**
-	 * 接单
+	 *  修改订单状态
 	 *
-	 * @param dto
+	 * @param id
 	 * @return boolean
 	 */
-	boolean confirm(OrdersConfirmDTO dto);
+	boolean changeOrderStatus(Long id,Integer status);
 }

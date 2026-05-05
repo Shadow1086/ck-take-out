@@ -285,9 +285,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		if (orders == null) {
 			throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
 		}
-		if (!orders.getUserId().equals(BaseContext.getCurrentId())) {
-			return null;
-		}
+
 		OrderVO orderVO = new OrderVO();
 		BeanUtils.copyProperties(orders, orderVO);
 		List<OrderDetail> details = orderDetailMapper.selectList(new LambdaQueryWrapper<OrderDetail>()
@@ -380,23 +378,26 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 	}
 
 	/**
-	 * 接单
+	 * 派送订单
 	 *
-	 * @param dto
+	 * @param id
 	 * @return boolean
 	 */
 	@Override
-	public boolean confirm(OrdersConfirmDTO dto) {
-		Long id = dto.getId();
+	public boolean changeOrderStatus(Long id,Integer status) {
+		if(id == null){
+			return false;
+		}
 		Orders orders = orderMapper.selectById(id);
 		if (orders == null) {
 			throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
 		}
-		if (!orders.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+		if (orders.getStatus().equals(status) || orders.getStatus().equals(Orders.CANCELLED)) {
 			throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
 		}
-		orders.setStatus(Orders.CONFIRMED);
+		orders.setStatus(status);
 		int i = orderMapper.updateById(orders);
+
 		return i == 1;
 	}
 

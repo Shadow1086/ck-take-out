@@ -1,8 +1,10 @@
 package com.ck.it.controller.admin;
 
+import com.ck.it.dto.OrdersCancelDTO;
 import com.ck.it.dto.OrdersConfirmDTO;
 import com.ck.it.dto.OrdersPageQueryDTO;
 import com.ck.it.dto.OrdersRejectionDTO;
+import com.ck.it.entity.Orders;
 import com.ck.it.result.PageResult;
 import com.ck.it.result.Result;
 import com.ck.it.service.OrderService;
@@ -39,6 +41,7 @@ public class OrderController {
 	@Operation(summary = "查询订单详情")
 	@GetMapping("/details/{id}")
 	public Result<OrderVO> queryDetail(@PathVariable("id") Long id) {
+		log.info("查询订单详情，订单id：{}", id);
 		OrderVO orderVO = orderService.queryDetail(id);
 
 		return Result.success(orderVO);
@@ -97,8 +100,39 @@ public class OrderController {
 	@Operation(summary = "接单")
 	public Result<Boolean> confirm(@RequestBody OrdersConfirmDTO dto) {
 		log.info("商家开始接单:{}", dto);
-		boolean confirm = orderService.confirm(dto);
+		boolean confirm = orderService.changeOrderStatus(dto.getId(), Orders.CONFIRMED);
 
 		return Result.success(confirm);
 	}
+
+	/**
+	 * 商家取消订单
+	 *
+	 * @param dto
+	 * @return {@link Result }<{@link Boolean }>
+	 */
+	@PutMapping("/cancel")
+	@Operation(summary = "取消订单")
+	public Result<Boolean> cancelOrder(@RequestBody OrdersCancelDTO dto) {
+		log.info("商家取消了订单：{}", dto);
+		boolean cancel = orderService.changeOrderStatus(dto.getId(), Orders.CANCELLED);
+		return Result.success(cancel);
+	}
+
+	@PutMapping("/delivery/{id}")
+	@Operation(summary = "派送订单")
+	public Result<Boolean> delivery(@PathVariable("id") Long id) {
+		log.info("商家派送订单，id：{}", id);
+		boolean cancel = orderService.changeOrderStatus(id, Orders.DELIVERY_IN_PROGRESS);
+		return Result.success(cancel);
+	}
+
+	@PutMapping("/complete/{id}")
+	@Operation(summary = "完成订单")
+	public Result<Boolean> complete(@PathVariable("id") Long id) {
+		log.info("商家派送订单，id：{}", id);
+		boolean completed = orderService.changeOrderStatus(id, Orders.COMPLETED);
+		return Result.success(completed);
+	}
+
 }
