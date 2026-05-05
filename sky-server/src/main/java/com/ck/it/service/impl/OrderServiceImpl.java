@@ -28,6 +28,7 @@ import com.ck.it.service.OrderService;
 import com.ck.it.service.ShoppingCartService;
 import com.ck.it.utils.WeChatPayUtil;
 import com.ck.it.vo.OrderPaymentVO;
+import com.ck.it.vo.OrderStatisticsVO;
 import com.ck.it.vo.OrderSubmitVO;
 import com.ck.it.vo.OrderVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -358,6 +359,27 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		int i = orderMapper.updateById(orders);
 
 		return i == 1;
+	}
+
+	/**
+	 * 各个状态的订单数量统计
+	 *
+	 * @return {@link OrderStatisticsVO }
+	 */
+	@Override
+	public OrderStatisticsVO statistics() {
+		Long toBeConfirmed = orderMapper.selectCount(new LambdaQueryWrapper<Orders>()
+				.eq(Orders::getStatus, Orders.TO_BE_CONFIRMED));
+		Long deliveryInProgress = orderMapper.selectCount(new LambdaQueryWrapper<Orders>()
+				.eq(Orders::getStatus, Orders.DELIVERY_IN_PROGRESS));
+		Long confirmed = orderMapper.selectCount(new LambdaQueryWrapper<Orders>()
+				.eq(Orders::getStatus, Orders.CONFIRMED));
+		OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+		orderStatisticsVO.setConfirmed(confirmed.intValue());
+		orderStatisticsVO.setDeliveryInProgress(deliveryInProgress.intValue());
+		orderStatisticsVO.setToBeConfirmed(toBeConfirmed.intValue());
+
+		return orderStatisticsVO;
 	}
 
 	/**

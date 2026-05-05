@@ -5,6 +5,7 @@ import com.ck.it.dto.OrdersRejectionDTO;
 import com.ck.it.result.PageResult;
 import com.ck.it.result.Result;
 import com.ck.it.service.OrderService;
+import com.ck.it.vo.OrderStatisticsVO;
 import com.ck.it.vo.OrderVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -44,7 +45,7 @@ public class OrderController {
 
 
 	/**
-	 *  根据条件查询订单
+	 * 根据条件查询订单
 	 *
 	 * @param dto
 	 * @return {@link Result }<{@link PageResult }>
@@ -65,10 +66,23 @@ public class OrderController {
 	 */
 	@Operation(summary = "拒单")
 	@PutMapping("/rejection")
-	public Result<Boolean> rejection(@RequestBody OrdersRejectionDTO dto){
-		log.info("商家拒单:{}",dto);
+	public Result<Boolean> rejection(@RequestBody OrdersRejectionDTO dto) {
+		log.info("商家拒单:{}", dto);
 		boolean rejection = orderService.rejection(dto);
 
 		return Result.success(rejection);
+	}
+
+	/**
+	 * 各个状态的订单数量统计
+	 *
+	 * @return {@link Result }<{@link OrderStatisticsVO }>
+	 */
+	@Operation(summary = "各个状态的订单数量统计")
+	@GetMapping("/statistics")
+	public Result<OrderStatisticsVO> statistics() {
+		OrderStatisticsVO statistics = orderService.statistics();
+
+		return Result.success(statistics);
 	}
 }

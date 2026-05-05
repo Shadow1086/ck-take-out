@@ -8,6 +8,7 @@ import com.ck.it.dto.OrdersSubmitDTO;
 import com.ck.it.entity.Orders;
 import com.ck.it.result.PageResult;
 import com.ck.it.vo.OrderPaymentVO;
+import com.ck.it.vo.OrderStatisticsVO;
 import com.ck.it.vo.OrderSubmitVO;
 import com.ck.it.vo.OrderVO;
 
@@ -74,4 +75,11 @@ public interface OrderService extends IService<Orders> {
 	 * @return boolean
 	 */
 	boolean rejection(OrdersRejectionDTO dto);
+
+	/**
+	 *  各个状态的订单数量统计
+	 *
+	 * @return {@link OrderStatisticsVO }
+	 */
+	OrderStatisticsVO statistics();
 }
