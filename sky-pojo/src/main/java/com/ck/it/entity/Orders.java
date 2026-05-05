@@ -1,5 +1,7 @@
 package com.ck.it.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -52,6 +54,7 @@ public class Orders implements Serializable {
     private Long addressBookId;
 
     //下单时间
+	@TableField(fill = FieldFill.INSERT)
     private LocalDateTime orderTime;
 
     //结账时间

@@ -160,7 +160,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 	}
 
 	/**
-	 *  订单详情
+	 * 订单详情
 	 *
 	 * @param id
 	 * @return {@link OrderVO }
@@ -169,12 +169,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 	public OrderVO orderDetail(Long id) {
 		Orders orders = orderMapper.selectById(id);
 		OrderVO orderVO = new OrderVO();
-		if(orders!=null && orders.getUserId().equals(BaseContext.getCurrentId())){
-			BeanUtils.copyProperties(orders,orderVO);
+		if (orders != null && orders.getUserId().equals(BaseContext.getCurrentId())) {
+			BeanUtils.copyProperties(orders, orderVO);
 			List<OrderDetail> details = orderDetailMapper.selectList(new LambdaQueryWrapper<OrderDetail>()
 					.eq(OrderDetail::getOrderId, orders.getId()));
 			orderVO.setOrderDetailList(details);
-		}else{
+		} else {
 			return null;
 		}
 		return orderVO;
@@ -187,19 +187,85 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 	 * @return boolean
 	 */
 	@Override
+	@Transactional
 	public boolean cancelOrder(Long id) {
 		/// 验证订单所属用户是否为当前用户
 		Orders orders = orderMapper.selectById(id);
-		if(!orders.getUserId().equals(BaseContext.getCurrentId())){
+		if (!orders.getUserId().equals(BaseContext.getCurrentId())) {
 //			throw new OrderBusinessException(MessageConstant.)
 			return false;
 		}
 		/// 删除数据库中的Order和OrderDetail
 		orderMapper.deleteById(id);
 		orderDetailMapper.delete(new LambdaQueryWrapper<OrderDetail>()
-				.eq(OrderDetail::getOrderId,id));
+				.eq(OrderDetail::getOrderId, id));
 
 		return true;
+	}
+
+
+	/**
+	 * 用户再来一单
+	 *
+	 * @param id
+	 * @return boolean
+	 */
+	@Override
+	@Transactional
+	public boolean repetition(Long id) {
+		/// 验证当前订单所属用户是否为当前用户
+		if (id == null) {
+			return false;
+		}
+		Orders orders = orderMapper.selectById(id);
+		Long userId = BaseContext.getCurrentId();
+
+		if(orders==null){
+			throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+		}
+		if (!orders.getUserId().equals(userId)) {
+			return false;
+		}
+		/// 如果是，有权限，复制当前订单的购物车明细
+		/// 清空购物车
+		shoppingCartService.remove(new LambdaQueryWrapper<ShoppingCart>()
+				.eq(ShoppingCart::getUserId, userId));
+
+		List<ShoppingCart> carts = new ArrayList<>();
+
+		List<OrderDetail> details = orderDetailMapper.selectList(new LambdaQueryWrapper<OrderDetail>()
+				.eq(OrderDetail::getOrderId, orders.getId()));
+		if(details==null || details.isEmpty()){
+			return false;
+		}
+		for (OrderDetail detail : details) {
+			ShoppingCart cart = new ShoppingCart();
+			BeanUtils.copyProperties(detail, cart);
+			cart.setId(null);
+			cart.setUserId(userId);
+			LambdaQueryWrapper<ShoppingCart> wrapper = new LambdaQueryWrapper<ShoppingCart>()
+					.eq(ShoppingCart::getUserId, userId);
+			if (cart.getDishId() != null) {
+				wrapper.eq(ShoppingCart::getDishId, cart.getDishId())
+						.isNull(ShoppingCart::getSetmealId);
+			} else {
+				wrapper.eq(ShoppingCart::getSetmealId, cart.getSetmealId())
+						.isNull(ShoppingCart::getDishId);
+			}
+			if (cart.getDishFlavor() != null) {
+				wrapper.eq(ShoppingCart::getDishFlavor, cart.getDishFlavor());
+			}
+			ShoppingCart one = shoppingCartService.getOne(wrapper);
+			if (one != null) {
+				/// 如果改菜品已在购物车内
+				one.setNumber(one.getNumber() + 1);
+				shoppingCartService.updateById(one);
+			} else {
+				cart.setCreateTime(LocalDateTime.now());
+				carts.add(cart);
+			}
+		}
+		return shoppingCartService.saveBatch(carts);
 	}
 
 	/**

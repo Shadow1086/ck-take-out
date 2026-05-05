@@ -1,5 +1,6 @@
 package com.ck.it.controller.user;
 
+import com.aliyun.core.annotation.Path;
 import com.ck.it.dto.OrdersPaymentDTO;
 import com.ck.it.dto.OrdersSubmitDTO;
 import com.ck.it.result.PageResult;
@@ -91,5 +92,18 @@ public class OrderController {
 		log.info("用户取消订单，订单id:{}", id);
 		boolean b = orderService.cancelOrder(id);
 		return Result.success(b);
+	}
+
+	/**
+	 *  用户再来一单
+	 *
+	 * @param id
+	 * @return {@link Result }<{@link Boolean }>
+	 */
+	@PostMapping("/repetition/{id}")
+	@Operation(summary = "再来一单")
+	public Result<Boolean> repetition(@PathVariable("id")Long id){
+		boolean repetition = orderService.repetition(id);
+		return Result.success(repetition);
 	}
 }

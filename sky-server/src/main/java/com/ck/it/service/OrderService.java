@@ -40,4 +40,12 @@ public interface OrderService extends IService<Orders> {
 	 * @return boolean
 	 */
 	boolean cancelOrder(Long id);
+
+	/**
+	 *  用户再来一单
+	 *
+	 * @param id
+	 * @return boolean
+	 */
+	boolean repetition(Long id);
 }
