@@ -31,6 +31,7 @@ import com.ck.it.vo.OrderVO;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,6 +64,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 	private WeChatPayUtil weChatPayUtil;
 	@Autowired
 	private UserMapper userMapper;
+
+	@Value("${sky.map.baidu}")
+	private String sk;
+	@Value("${sky.map.location}")
+	private String shop;
 
 	@Override
 	@Transactional
@@ -454,4 +460,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 	private OrderPaymentVO weChatPayment(Orders orders) {
 		return null;
 	}
+//
+//	private void checkOutOfRange(String address){
+//		SearchHttpAK snCal = new
+//	}
 }
