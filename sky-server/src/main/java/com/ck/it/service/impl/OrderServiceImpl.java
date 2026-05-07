@@ -7,7 +7,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.constant.MessageConstant;
 import com.ck.it.context.BaseContext;
-import com.ck.it.dto.*;
+import com.ck.it.dto.OrdersPageQueryDTO;
+import com.ck.it.dto.OrdersPaymentDTO;
+import com.ck.it.dto.OrdersRejectionDTO;
+import com.ck.it.dto.OrdersSubmitDTO;
 import com.ck.it.entity.AddressBook;
 import com.ck.it.entity.OrderDetail;
 import com.ck.it.entity.Orders;
@@ -28,6 +31,9 @@ import com.ck.it.vo.OrderPaymentVO;
 import com.ck.it.vo.OrderStatisticsVO;
 import com.ck.it.vo.OrderSubmitVO;
 import com.ck.it.vo.OrderVO;
+import com.ck.it.websocket.WebSocketServer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +42,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Package: com.ck.it.service.impl
@@ -58,6 +62,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 	@Autowired
 	private ShoppingCartService shoppingCartService;
 
+	@Autowired
+	private WebSocketServer webSocketServer;
 	@Autowired
 	private WeChatProperties weChatProperties;
 	@Autowired
@@ -390,8 +396,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 	 * @return boolean
 	 */
 	@Override
-	public boolean changeOrderStatus(Long id,Integer status) {
-		if(id == null){
+	public boolean changeOrderStatus(Long id, Integer status) {
+		if (id == null) {
 			return false;
 		}
 		Orders orders = orderMapper.selectById(id);
@@ -454,6 +460,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 				.checkoutTime(LocalDateTime.now())
 				.build();
 		orderMapper.updateById(build);
+
+		// 通过websocket向客户端发送消息，
+		Map<String, Object> map = new HashMap<>();
+		map.put("type", 1);
+		map.put("orderId", build.getId());
+		map.put("content", "订单号：" + orders.getNumber());
+		try {
+			String json = new ObjectMapper().writeValueAsString(map);
+			webSocketServer.sendToAllClient(json);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
+
 		return OrderPaymentVO.builder().build();
 	}
 

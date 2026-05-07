@@ -16,7 +16,6 @@ import java.util.Arrays;
  * {@code @Author} Liang-ht
  * {@code @Create} 2026-2026/5/5 20:53
  */
-@Component
 @Slf4j
 public class MyTask {
 
