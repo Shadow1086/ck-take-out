@@ -23,6 +23,7 @@ import com.ck.it.mapper.OrderMapper;
 import com.ck.it.mapper.UserMapper;
 import com.ck.it.properties.WeChatProperties;
 import com.ck.it.result.PageResult;
+import com.ck.it.result.Result;
 import com.ck.it.service.AddressBookService;
 import com.ck.it.service.OrderService;
 import com.ck.it.service.ShoppingCartService;
@@ -40,6 +41,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -411,6 +414,33 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
 		int i = orderMapper.updateById(orders);
 
 		return i == 1;
+	}
+
+	/**
+	 * 用户端催单
+	 *
+	 * @param id
+	 */
+	@Override
+	public boolean reminder(Long id) {
+		Orders orders = orderMapper.selectById(id);
+		if(orders == null){
+			throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+		}
+		if (orders.getUserId().equals(BaseContext.getCurrentId())) {
+			Map<String ,Object> map = new HashMap<>();
+			map.put("type",2);
+			map.put("orderId",id);
+			map.put("content","订单号："+orders.getNumber());
+			try {
+				String json = new ObjectMapper().writeValueAsString(map);
+				webSocketServer.sendToAllClient(json);
+			} catch (JsonProcessingException e) {
+				throw new RuntimeException(e);
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**

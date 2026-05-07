@@ -87,4 +87,11 @@ public interface OrderService extends IService<Orders> {
 	 * @return boolean
 	 */
 	boolean changeOrderStatus(Long id,Integer status);
+
+	/**
+	 *  用户端催单
+	 *
+	 * @param id
+	 */
+	boolean reminder(Long id);
 }

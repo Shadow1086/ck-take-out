@@ -107,11 +107,17 @@ public class OrderController {
 		return Result.success(repetition);
 	}
 
+	/**
+	 *  用户催单
+	 *
+	 * @param id
+	 * @return {@link Result }<{@link Boolean }>
+	 */
 	@GetMapping("/reminder/{id}")
 	@Operation(summary = "用户催单")
-	public Result reminder(@PathVariable("id")Long id){
+	public Result<Boolean> reminder(@PathVariable("id")Long id){
+		boolean reminder = orderService.reminder(id);
 
-
-		return Result.success();
+		return Result.success(reminder);
 	}
 }
