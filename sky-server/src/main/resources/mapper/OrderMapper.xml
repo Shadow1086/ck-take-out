@@ -5,4 +5,11 @@
 
 <mapper namespace="com.ck.it.mapper.OrderMapper">
 
+	<select id="countAmount" resultType="java.lang.Long">
+		SELECT SUM(amount)
+		FROM orders
+		WHERE status = 5
+		  AND order_time &gt;= #{beginTime}
+		  AND order_time &lt;= #{endTime}
+	</select>
 </mapper>
