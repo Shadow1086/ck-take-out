@@ -3,6 +3,7 @@ package com.ck.it.controller.admin;
 import com.ck.it.result.Result;
 import com.ck.it.service.ReportService;
 import com.ck.it.vo.TurnoverReportVO;
+import com.ck.it.vo.UserReportVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -37,5 +38,22 @@ public class ReportController {
 			@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
 		log.info("营业额统计时间：{}->{}", begin, end);
 		return Result.success(reportService.turnoverStatistics(begin, end));
+	}
+
+	/**
+	 *  统计每日新增用户量和当日总用户量
+	 *
+	 * @param begin
+	 * @param end
+	 * @return {@link Result }<{@link UserReportVO }>
+	 */
+	@GetMapping("/userStatistics")
+	@Operation(summary = "用户统计接口")
+	public Result<UserReportVO> userStatistics(
+			@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+			@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end
+	) {
+		log.info("用户统计：{}->{}", begin, end);
+		return Result.success(reportService.userStatistics(begin, end));
 	}
 }

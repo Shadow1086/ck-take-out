@@ -2,6 +2,7 @@ package com.ck.it.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ck.it.vo.TurnoverReportVO;
+import com.ck.it.vo.UserReportVO;
 
 import java.time.LocalDate;
 
@@ -23,4 +24,12 @@ public interface ReportService{
 	 */
 	TurnoverReportVO turnoverStatistics(LocalDate begin, LocalDate end);
 
+	/**
+	 *  用户统计
+	 *
+	 * @param begin
+	 * @param end
+	 * @return {@link UserReportVO }
+	 */
+	UserReportVO userStatistics(LocalDate begin, LocalDate end);
 }

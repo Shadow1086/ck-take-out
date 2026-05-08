@@ -8,5 +8,6 @@
     <file url="file://$PROJECT_DIR$/sky-server/src/main/resources/mapper/OrderMapper.xml" value="fd1203c4-8d9f-441e-8f86-77e45cb12e9a" />
     <file url="file://$PROJECT_DIR$/sky-server/src/main/resources/mapper/SetmealMapper.xml" value="fd1203c4-8d9f-441e-8f86-77e45cb12e9a" />
     <file url="file://$PROJECT_DIR$/sky-server/src/main/resources/mapper/ShoppingCartMapper.xml" value="fd1203c4-8d9f-441e-8f86-77e45cb12e9a" />
+    <file url="file://$PROJECT_DIR$/sky-server/src/main/resources/mapper/UserMapper.xml" value="fd1203c4-8d9f-441e-8f86-77e45cb12e9a" />
   </component>
 </project>
