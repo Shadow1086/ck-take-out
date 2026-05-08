@@ -5,6 +5,7 @@ import com.ck.it.service.WorkspaceService;
 import com.ck.it.vo.BusinessDataVO;
 import com.ck.it.vo.DishOverViewVO;
 import com.ck.it.vo.OrderOverViewVO;
+import com.ck.it.vo.SetmealOverViewVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -41,28 +42,41 @@ public class WorkSpaceController {
 	}
 
 	/**
-	 *  查询订单管理数据
+	 * 查询订单管理数据
 	 *
 	 * @return {@link Result }<{@link OrderOverViewVO }>
 	 */
 	@GetMapping("/overviewOrders")
 	@Operation(summary = "查询订单管理数据")
-	public Result<OrderOverViewVO> overviewOrders(){
+	public Result<OrderOverViewVO> overviewOrders() {
 		log.info("查询订单管理数据");
 		return Result.success(workspaceService.overviewOrders());
 	}
 
 
 	/**
-	 *  查询菜品总览
+	 * 查询菜品总览
 	 *
 	 * @return {@link Result }<{@link DishOverViewVO }>
 	 */
 	@GetMapping("/overviewDishes")
 	@Operation(summary = "查询菜品总览")
-	public Result<DishOverViewVO> overviewDishes(){
+	public Result<DishOverViewVO> overviewDishes() {
 		log.info("查询菜品总览");
 		return Result.success(workspaceService.overviewDishes());
 	}
+
+	/**
+	 * 查询套餐总览
+	 *
+	 * @return {@link Result }<{@link DishOverViewVO }>
+	 */
+	@GetMapping("/overviewSetmeals")
+	@Operation(summary = "查询套餐总览")
+	public Result<SetmealOverViewVO> overviewSetmeals() {
+		log.info("查询套餐总览");
+		return Result.success(workspaceService.overviewSetmeals());
+	}
+
 
 }

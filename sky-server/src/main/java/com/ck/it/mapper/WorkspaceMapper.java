@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ck.it.entity.Orders;
 import com.ck.it.vo.DishOverViewVO;
 import com.ck.it.vo.OrderOverViewVO;
+import com.ck.it.vo.SetmealOverViewVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.time.LocalDateTime;
@@ -33,4 +34,11 @@ public interface WorkspaceMapper extends BaseMapper<Orders> {
 	 * @return {@link DishOverViewVO }
 	 */
 	DishOverViewVO overviewDishes();
+
+	/**
+	 *  查询套餐总览
+	 *
+	 * @return {@link SetmealOverViewVO }
+	 */
+	SetmealOverViewVO overviewSetmeals();
 }

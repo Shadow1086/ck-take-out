@@ -10,10 +10,9 @@ import com.ck.it.service.WorkspaceService;
 import com.ck.it.vo.BusinessDataVO;
 import com.ck.it.vo.DishOverViewVO;
 import com.ck.it.vo.OrderOverViewVO;
-import io.swagger.v3.oas.annotations.Operation;
+import com.ck.it.vo.SetmealOverViewVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -31,12 +30,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class WorkspaceServiceImpl extends ServiceImpl<WorkspaceMapper, Orders> implements WorkspaceService {
+	private static final LocalDateTime BEGIN = LocalDate.now().atStartOfDay();
+	private static final LocalDateTime END = LocalDate.now().plusDays(1).atStartOfDay();
 	private final OrderMapper orderMapper;
 	private final UserMapper userMapper;
 	private final WorkspaceMapper workspaceMapper;
-	private static final LocalDateTime BEGIN = LocalDate.now().atStartOfDay();
-	private static final LocalDateTime END = LocalDate.now().plusDays(1).atStartOfDay();
-
 
 	/**
 	 * 查询今日运营数据
@@ -45,7 +43,7 @@ public class WorkspaceServiceImpl extends ServiceImpl<WorkspaceMapper, Orders> i
 	 */
 	@Override
 	public BusinessDataVO businessData() {
-				/// 新增用户数
+		/// 新增用户数
 		Integer newUsers = userMapper.newUserCount(BEGIN, END);
 		/// 有效订单数
 		List<OrderStatisticsItemDTO> orderStatisticsItemDTOS = orderMapper.orderReport(BEGIN, END);
@@ -93,5 +91,15 @@ public class WorkspaceServiceImpl extends ServiceImpl<WorkspaceMapper, Orders> i
 	@Override
 	public DishOverViewVO overviewDishes() {
 		return workspaceMapper.overviewDishes();
+	}
+
+	/**
+	 * 查询套餐总览
+	 *
+	 * @return {@link SetmealOverViewVO }
+	 */
+	@Override
+	public SetmealOverViewVO overviewSetmeals() {
+		return workspaceMapper.overviewSetmeals();
 	}
 }

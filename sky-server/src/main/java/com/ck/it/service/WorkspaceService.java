@@ -5,6 +5,7 @@ import com.ck.it.entity.Orders;
 import com.ck.it.vo.BusinessDataVO;
 import com.ck.it.vo.DishOverViewVO;
 import com.ck.it.vo.OrderOverViewVO;
+import com.ck.it.vo.SetmealOverViewVO;
 
 /**
  * Package: com.ck.it.service
@@ -34,4 +35,11 @@ public interface WorkspaceService extends IService<Orders> {
 	 * @return {@link DishOverViewVO }
 	 */
 	DishOverViewVO overviewDishes();
+
+	/**
+	 *  查询套餐总览
+	 *
+	 * @return {@link SetmealOverViewVO }
+	 */
+	SetmealOverViewVO overviewSetmeals();
 }
