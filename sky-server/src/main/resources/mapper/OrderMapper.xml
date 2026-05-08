@@ -6,11 +6,11 @@
 <mapper namespace="com.ck.it.mapper.OrderMapper">
 
 	<select id="countAmount" resultType="BigDecimal">
-		SELECT SUM(amount)
+		SELECT IFNULL(SUM(amount), 0)
 		FROM orders
 		WHERE status = 5
 		  AND order_time &gt;= #{beginTime}
-		  AND order_time &lt;= #{endTime}
+		  AND order_time &lt; #{endTime}
 	</select>
 	<select id="orderReport" resultType="com.ck.it.dto.OrderStatisticsItemDTO">
 		SELECT DATE(order_time)                            AS order_date,
