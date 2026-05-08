@@ -2,7 +2,10 @@ package com.ck.it.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ck.it.entity.Orders;
+import com.ck.it.vo.OrderOverViewVO;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.time.LocalDateTime;
 
 /**
  * Package: com.ck.it.mapper
@@ -14,4 +17,12 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface WorkspaceMapper extends BaseMapper<Orders> {
 
+	/**
+	 *  查询订单管理数据
+	 *
+	 * @param begin
+	 * @param end
+	 * @return {@link OrderOverViewVO }
+	 */
+	OrderOverViewVO overviewOrders(LocalDateTime begin, LocalDateTime end);
 }
