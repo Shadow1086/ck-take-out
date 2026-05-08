@@ -3,6 +3,7 @@ package com.ck.it.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ck.it.entity.Orders;
 import com.ck.it.vo.BusinessDataVO;
+import com.ck.it.vo.DishOverViewVO;
 import com.ck.it.vo.OrderOverViewVO;
 
 /**
@@ -26,4 +27,11 @@ public interface WorkspaceService extends IService<Orders> {
 	 * @return {@link OrderOverViewVO }
 	 */
 	OrderOverViewVO overviewOrders();
+
+	/**
+	 *  查询菜品总览
+	 *
+	 * @return {@link DishOverViewVO }
+	 */
+	DishOverViewVO overviewDishes();
 }

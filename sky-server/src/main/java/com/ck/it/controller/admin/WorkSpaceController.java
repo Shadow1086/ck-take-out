@@ -3,6 +3,7 @@ package com.ck.it.controller.admin;
 import com.ck.it.result.Result;
 import com.ck.it.service.WorkspaceService;
 import com.ck.it.vo.BusinessDataVO;
+import com.ck.it.vo.DishOverViewVO;
 import com.ck.it.vo.OrderOverViewVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,6 +50,19 @@ public class WorkSpaceController {
 	public Result<OrderOverViewVO> overviewOrders(){
 		log.info("查询订单管理数据");
 		return Result.success(workspaceService.overviewOrders());
+	}
+
+
+	/**
+	 *  查询菜品总览
+	 *
+	 * @return {@link Result }<{@link DishOverViewVO }>
+	 */
+	@GetMapping("/overviewDishes")
+	@Operation(summary = "查询菜品总览")
+	public Result<DishOverViewVO> overviewDishes(){
+		log.info("查询菜品总览");
+		return Result.success(workspaceService.overviewDishes());
 	}
 
 }

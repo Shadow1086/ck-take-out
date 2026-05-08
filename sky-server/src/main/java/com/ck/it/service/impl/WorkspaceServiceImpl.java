@@ -8,9 +8,12 @@ import com.ck.it.mapper.UserMapper;
 import com.ck.it.mapper.WorkspaceMapper;
 import com.ck.it.service.WorkspaceService;
 import com.ck.it.vo.BusinessDataVO;
+import com.ck.it.vo.DishOverViewVO;
 import com.ck.it.vo.OrderOverViewVO;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -80,5 +83,15 @@ public class WorkspaceServiceImpl extends ServiceImpl<WorkspaceMapper, Orders> i
 	@Override
 	public OrderOverViewVO overviewOrders() {
 		return workspaceMapper.overviewOrders(BEGIN, END);
+	}
+
+	/**
+	 * 查询菜品总览
+	 *
+	 * @return {@link DishOverViewVO }
+	 */
+	@Override
+	public DishOverViewVO overviewDishes() {
+		return workspaceMapper.overviewDishes();
 	}
 }

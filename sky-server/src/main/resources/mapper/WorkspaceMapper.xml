@@ -15,4 +15,9 @@
 		WHERE order_time &gt;= #{begin}
 		  AND order_time &lt; #{end}
 	</select>
+	<select id="overviewDishes" resultType="com.ck.it.vo.DishOverViewVO">
+		SELECT IFNULL(SUM(IF(status = 1, 1, 0)), 0) AS sold,
+		       IFNULL(SUM(IF(status = 0, 1, 0)), 0) AS discontinued
+		FROM dish
+	</select>
 </mapper>
