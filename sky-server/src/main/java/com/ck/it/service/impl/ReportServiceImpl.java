@@ -1,18 +1,23 @@
 package com.ck.it.service.impl;
 
+import com.ck.it.dto.OrderStatisticsItemDTO;
 import com.ck.it.mapper.OrderMapper;
 import com.ck.it.mapper.UserMapper;
 import com.ck.it.service.ReportService;
+import com.ck.it.vo.OrderReportVO;
 import com.ck.it.vo.TurnoverReportVO;
 import com.ck.it.vo.UserReportVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Package: com.ck.it.service.impl
@@ -40,7 +45,7 @@ public class ReportServiceImpl implements ReportService {
 		/// 用于存放begin->end范围内的日期
 		List<LocalDate> dateList = new ArrayList<>();
 		/// 用于存放营业额
-		List<Long> turnoverList = new ArrayList<>();
+		List<BigDecimal> turnoverList = new ArrayList<>();
 
 		LocalDate date = begin;
 		while (!date.isAfter(end)) {
@@ -48,27 +53,15 @@ public class ReportServiceImpl implements ReportService {
 			/// 查询数据库
 			LocalDateTime beginTime = date.atStartOfDay();
 			LocalDateTime endTime = date.plusDays(1).atStartOfDay();
-			Long l = orderMapper.countAmount(beginTime, endTime);
+			BigDecimal l = orderMapper.countAmount(beginTime, endTime);
 			turnoverList.add(l);
 			date = date.plusDays(1);
 		}
 		TurnoverReportVO turnoverReportVO = new TurnoverReportVO();
 		/// 将日期存为字符串
-		StringJoiner dateListStr = new StringJoiner(",");
-		for (LocalDate localDate : dateList) {
-			dateListStr.add(localDate.toString());
-		}
+		turnoverReportVO.setDateList(joinList(dateList));
 		/// 将营业额存为字符串
-		StringJoiner turnoverListStr = new StringJoiner(",");
-		for (Long i : turnoverList) {
-			if (i != null) {
-				turnoverListStr.add(i.toString());
-			} else {
-				turnoverListStr.add("0");
-			}
-		}
-		turnoverReportVO.setDateList(dateListStr.toString());
-		turnoverReportVO.setTurnoverList(turnoverListStr.toString());
+		turnoverReportVO.setTurnoverList(joinList(turnoverList));
 
 		return turnoverReportVO;
 	}
@@ -103,32 +96,74 @@ public class ReportServiceImpl implements ReportService {
 			dateList.add(date);
 			date = date.plusDays(1);
 		}
-		StringJoiner listStr = new StringJoiner(",");
-		for (LocalDate localDate : dateList) {
-			listStr.add(localDate.toString());
-		}
-		userReportVO.setDateList(listStr.toString());
-		listStr = new StringJoiner(",");
-		for (Integer i : newUserList) {
-			if (i != null) {
-				listStr.add(i.toString());
-			} else {
-				listStr.add("0");
-			}
-		}
-		userReportVO.setNewUserList(listStr.toString());
-		listStr = new StringJoiner(",");
-		for (Integer i : totalUserList) {
-			if (i != null) {
-				listStr.add(i.toString());
-			} else {
-				listStr.add("0");
-			}
-		}
-		userReportVO.setTotalUserList(listStr.toString());
+		userReportVO.setDateList(joinList(dateList));
+		userReportVO.setNewUserList(joinList(newUserList));
+		userReportVO.setTotalUserList(joinList(totalUserList));
 
 		return userReportVO;
 	}
+
+	/**
+	 * 订单统计
+	 *
+	 * @param begin
+	 * @param end
+	 * @return {@link OrderReportVO }
+	 */
+	// TODO : 理解下面的代码
+	@Override
+	public OrderReportVO orderStatistics(LocalDate begin, LocalDate end) {
+		OrderReportVO orderReport = new OrderReportVO();
+
+		int totalOrderCount = 0;
+		int validOrderCount = 0;
+		List<LocalDate> dateList = new ArrayList<>();
+		List<Integer> orderCountList = new ArrayList<>();
+		List<Integer> validOrderCountList = new ArrayList<>();
+
+		LocalDateTime beginTime = begin.atStartOfDay();
+		LocalDateTime endTime = end.plusDays(1).atStartOfDay();
+
+
+		List<OrderStatisticsItemDTO> items = orderMapper.orderReport(beginTime, endTime);
+		Map<LocalDate, OrderStatisticsItemDTO> itemMap = items.stream().collect(Collectors.toMap(OrderStatisticsItemDTO::getOrderDate, item -> item));
+
+		LocalDate date = begin;
+		while (!date.isAfter(end)) {
+			dateList.add(date);
+			OrderStatisticsItemDTO item = itemMap.get(date);
+			int orderCount = item == null ? 0 : item.getOrderCount();
+			int validCount = item == null ? 0 : item.getValidOrderCount();
+			orderCountList.add(orderCount);
+			validOrderCountList.add(validCount);
+
+			totalOrderCount += orderCount;
+			validOrderCount += validCount;
+
+			date = date.plusDays(1);
+		}
+
+		double orderCompletionRate = totalOrderCount == 0 ?
+				0.0 : validOrderCount * 1.0 / totalOrderCount;
+
+		orderReport.setDateList(joinList(dateList));
+		orderReport.setOrderCompletionRate(orderCompletionRate);
+		orderReport.setOrderCountList(joinList(orderCountList));
+		orderReport.setTotalOrderCount(totalOrderCount);
+		orderReport.setValidOrderCount(validOrderCount);
+		orderReport.setValidOrderCountList(joinList(validOrderCountList));
+
+		return orderReport;
+	}
+
+	private <T> String joinList(List<T> list) {
+		StringJoiner joiner = new StringJoiner(",");
+		for (T item : list) {
+			joiner.add(item == null ? "0" : item.toString());
+		}
+		return joiner.toString();
+	}
+
 }
 
 

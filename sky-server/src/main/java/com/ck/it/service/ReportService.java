@@ -1,6 +1,7 @@
 package com.ck.it.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ck.it.vo.OrderReportVO;
 import com.ck.it.vo.TurnoverReportVO;
 import com.ck.it.vo.UserReportVO;
 
@@ -32,4 +33,13 @@ public interface ReportService{
 	 * @return {@link UserReportVO }
 	 */
 	UserReportVO userStatistics(LocalDate begin, LocalDate end);
+
+	/**
+	 *  订单统计
+	 *
+	 * @param begin
+	 * @param end
+	 * @return {@link OrderReportVO }
+	 */
+	OrderReportVO orderStatistics(LocalDate begin, LocalDate end);
 }

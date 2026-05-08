@@ -2,6 +2,7 @@ package com.ck.it.controller.admin;
 
 import com.ck.it.result.Result;
 import com.ck.it.service.ReportService;
+import com.ck.it.vo.OrderReportVO;
 import com.ck.it.vo.TurnoverReportVO;
 import com.ck.it.vo.UserReportVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,7 +42,7 @@ public class ReportController {
 	}
 
 	/**
-	 *  统计每日新增用户量和当日总用户量
+	 * 统计每日新增用户量和当日总用户量
 	 *
 	 * @param begin
 	 * @param end
@@ -55,5 +56,21 @@ public class ReportController {
 	) {
 		log.info("用户统计：{}->{}", begin, end);
 		return Result.success(reportService.userStatistics(begin, end));
+	}
+
+	/**
+	 * 订单统计接口
+	 *
+	 * @param begin
+	 * @param end
+	 * @return {@link Result }<{@link OrderReportVO }>
+	 */
+	@GetMapping("/ordersStatistics")
+	@Operation(summary = "订单统计接口")
+	public Result<OrderReportVO> orderStatistics(
+			@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+			@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+		log.info("订单统计查询：{}->{}", begin, end);
+		return Result.success(reportService.orderStatistics(begin, end));
 	}
 }

@@ -5,11 +5,21 @@
 
 <mapper namespace="com.ck.it.mapper.OrderMapper">
 
-	<select id="countAmount" resultType="java.lang.Long">
+	<select id="countAmount" resultType="BigDecimal">
 		SELECT SUM(amount)
 		FROM orders
 		WHERE status = 5
 		  AND order_time &gt;= #{beginTime}
 		  AND order_time &lt;= #{endTime}
+	</select>
+	<select id="orderReport" resultType="com.ck.it.dto.OrderStatisticsItemDTO">
+		SELECT DATE(order_time)                            AS order_date,
+		       COUNT(*)                                    AS order_count,
+		       SUM(CASE WHEN status = 5 THEN 1 ELSE 0 END) AS valid_order_count
+		FROM orders
+		WHERE order_time &gt;= #{beginTime}
+		  AND order_time &lt; #{endTime}
+		GROUP BY DATE(order_time)
+		ORDER BY order_date
 	</select>
 </mapper>
