@@ -2,6 +2,7 @@ package com.ck.it.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ck.it.vo.OrderReportVO;
+import com.ck.it.vo.SalesTop10ReportVO;
 import com.ck.it.vo.TurnoverReportVO;
 import com.ck.it.vo.UserReportVO;
 
@@ -42,4 +43,13 @@ public interface ReportService{
 	 * @return {@link OrderReportVO }
 	 */
 	OrderReportVO orderStatistics(LocalDate begin, LocalDate end);
+
+	/**
+	 *  查询销量排名top10的菜品/套餐
+	 *
+	 * @param begin
+	 * @param end
+	 * @return {@link SalesTop10ReportVO }
+	 */
+	SalesTop10ReportVO top(LocalDate begin, LocalDate end);
 }

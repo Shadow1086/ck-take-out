@@ -1,10 +1,12 @@
 package com.ck.it.service.impl;
 
+import com.ck.it.dto.GoodsSalesDTO;
 import com.ck.it.dto.OrderStatisticsItemDTO;
 import com.ck.it.mapper.OrderMapper;
 import com.ck.it.mapper.UserMapper;
 import com.ck.it.service.ReportService;
 import com.ck.it.vo.OrderReportVO;
+import com.ck.it.vo.SalesTop10ReportVO;
 import com.ck.it.vo.TurnoverReportVO;
 import com.ck.it.vo.UserReportVO;
 import lombok.RequiredArgsConstructor;
@@ -137,11 +139,11 @@ public class ReportServiceImpl implements ReportService {
 			orderCountList.add(orderCount);
 			validOrderCountList.add(validCount);
 
-			totalOrderCount += orderCount;
-			validOrderCount += validCount;
-
 			date = date.plusDays(1);
 		}
+		// 求和
+		totalOrderCount = orderCountList.stream().reduce(Integer::sum).get();
+		validOrderCount = validOrderCountList.stream().reduce(Integer::sum).get();
 
 		double orderCompletionRate = totalOrderCount == 0 ?
 				0.0 : validOrderCount * 1.0 / totalOrderCount;
@@ -156,6 +158,26 @@ public class ReportServiceImpl implements ReportService {
 		return orderReport;
 	}
 
+	/**
+	 * 查询销量排名top10的菜品/套餐
+	 *
+	 * @param begin
+	 * @param end
+	 * @return {@link SalesTop10ReportVO }
+	 */
+	@Override
+	public SalesTop10ReportVO top(LocalDate begin, LocalDate end) {
+		LocalDateTime beginTime = begin.atStartOfDay();
+		LocalDateTime endTime = end.plusDays(1).atStartOfDay();
+		List<GoodsSalesDTO> topList = orderMapper.top(beginTime, endTime);
+
+		List<String> names = topList.stream().map(GoodsSalesDTO::getName).toList();
+		List<Integer> numbers = topList.stream().map(GoodsSalesDTO::getNumber).toList();
+		return SalesTop10ReportVO.builder()
+				.nameList(joinList(names))
+				.numberList(joinList(numbers)).build();
+	}
+
 	private <T> String joinList(List<T> list) {
 		StringJoiner joiner = new StringJoiner(",");
 		for (T item : list) {
@@ -165,17 +187,3 @@ public class ReportServiceImpl implements ReportService {
 	}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

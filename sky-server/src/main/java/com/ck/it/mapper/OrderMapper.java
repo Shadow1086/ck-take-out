@@ -2,12 +2,14 @@ package com.ck.it.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.ck.it.dto.GoodsSalesDTO;
 import com.ck.it.dto.OrderStatisticsItemDTO;
 import com.ck.it.entity.OrderDetail;
 import com.ck.it.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -39,4 +41,13 @@ public interface OrderMapper extends BaseMapper<Orders> {
 	 * @return {@link List }<{@link Integer }>
 	 */
 	List<OrderStatisticsItemDTO> orderReport(LocalDateTime beginTime, LocalDateTime endTime);
+
+	/**
+	 * 查询指定时间段内的销量前十的菜品/套餐
+	 *
+	 * @param beginTime
+	 * @param endTime
+	 * @return {@link List }<{@link GoodsSalesDTO }>
+	 */
+	List<GoodsSalesDTO> top(LocalDateTime beginTime, LocalDateTime endTime);
 }

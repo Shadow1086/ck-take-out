@@ -3,6 +3,7 @@ package com.ck.it.controller.admin;
 import com.ck.it.result.Result;
 import com.ck.it.service.ReportService;
 import com.ck.it.vo.OrderReportVO;
+import com.ck.it.vo.SalesTop10ReportVO;
 import com.ck.it.vo.TurnoverReportVO;
 import com.ck.it.vo.UserReportVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -72,5 +73,14 @@ public class ReportController {
 			@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
 		log.info("订单统计查询：{}->{}", begin, end);
 		return Result.success(reportService.orderStatistics(begin, end));
+	}
+
+	@GetMapping("/top10")
+	@Operation(summary = "查询销量排名top10的接口")
+	public Result<SalesTop10ReportVO> top(
+			@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+			@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+		log.info("查询销量排名top10的菜品：{}->{}",begin,end);
+		return Result.success(reportService.top(begin,end));
 	}
 }
