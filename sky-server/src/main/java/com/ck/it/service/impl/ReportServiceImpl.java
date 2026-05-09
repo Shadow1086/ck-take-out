@@ -209,7 +209,6 @@ public class ReportServiceImpl implements ReportService {
 		}
 
 		/// 通过POI件给数据写到Excel文件中
-//		File file = new File("/Volumes/study/02-java/Project/sky-take-out/sky-server/src/main/resources/templates/运营数据报表模板.xlsx");
 		try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("templates/运营数据报表模板.xlsx")) {
 			if(in==null){
 				throw new RuntimeException("运营数据报表模板不存在");

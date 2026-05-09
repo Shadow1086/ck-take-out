@@ -3,6 +3,7 @@ package com.ck.it.controller.admin;
 import com.aliyun.core.annotation.Path;
 import com.ck.it.dto.DishDTO;
 import com.ck.it.dto.DishPageQueryDTO;
+import com.ck.it.entity.Dish;
 import com.ck.it.result.PageResult;
 import com.ck.it.result.Result;
 import com.ck.it.service.DishService;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -137,5 +139,12 @@ public class DishController {
 		redisTemplate.delete(keys);
 
 		return Result.success(i);
+	}
+
+	@GetMapping("/list")
+	@Operation(summary = "根据分类id查询菜品")
+	public Result<List<Dish>> list(@RequestParam("categoryId") Long categoryId){
+		log.info("根据分类id查询菜品，分类id:{}",categoryId);
+		return Result.success(dishService.getByCategoryId(categoryId));
 	}
 }

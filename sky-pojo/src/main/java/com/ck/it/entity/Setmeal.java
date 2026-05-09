@@ -1,5 +1,7 @@
 package com.ck.it.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,10 +40,10 @@ public class Setmeal implements Serializable {
 
     //图片
     private String image;
-
+	@TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	private LocalDateTime updateTime;
 
     private Long createUser;
 

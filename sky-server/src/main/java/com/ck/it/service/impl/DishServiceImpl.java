@@ -191,6 +191,19 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 	}
 
 	/**
+	 * 管理端根据套餐id查询菜品
+	 *
+	 * @param categoryId
+	 * @return {@link List }<{@link Dish }>
+	 */
+	@Override
+	public List<Dish> getByCategoryId(Long categoryId) {
+		return dishMapper.selectList(new LambdaQueryWrapper<Dish>()
+				.eq(Dish::getCategoryId, categoryId)
+				.eq(Dish::getStatus, 1));
+	}
+
+	/**
 	 * 菜品的起售与停售
 	 *
 	 * @param status

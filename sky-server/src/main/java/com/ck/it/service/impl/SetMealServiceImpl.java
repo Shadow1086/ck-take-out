@@ -3,6 +3,8 @@ package com.ck.it.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ck.it.constant.StatusConstant;
+import com.ck.it.context.BaseContext;
+import com.ck.it.dto.SetmealDTO;
 import com.ck.it.entity.Setmeal;
 import com.ck.it.entity.SetmealDish;
 import com.ck.it.mapper.SetmealDishMapper;
@@ -13,7 +15,9 @@ import com.ck.it.vo.SetmealVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -69,4 +73,43 @@ public class SetMealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
 
 		return dishItemVOS;
 	}
+
+
+	/**
+	 * 新增套餐
+	 *
+	 * @param dto
+	 */
+	@Override
+	@Transactional
+	public void addSetmeal(SetmealDTO dto) {
+		if (dto == null) {
+			return;
+		}
+		Setmeal setmeal = new Setmeal();
+		BeanUtils.copyProperties(dto, setmeal);
+
+//		setmeal.setUpdateTime(LocalDateTime.now());
+		setmeal.setCreateUser(BaseContext.getCurrentId());
+		setmeal.setUpdateUser(BaseContext.getCurrentId());
+
+		List<SetmealDish> setmealDishes = dto.getSetmealDishes();
+		if (setmealDishes == null) {
+			return;
+		}
+		int insert = setmealMapper.insert(setmeal);
+		if (insert == 1) {
+			for (SetmealDish setmealDish : setmealDishes) {
+				setmealDish.setSetmealId(setmeal.getId());
+			}
+			setmealDishMapper.insert(setmealDishes);
+		}
+	}
 }
+
+
+
+
+
+
+

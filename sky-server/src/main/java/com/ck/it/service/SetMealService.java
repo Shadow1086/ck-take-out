@@ -2,6 +2,7 @@ package com.ck.it.service;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ck.it.dto.SetmealDTO;
 import com.ck.it.entity.Setmeal;
 import com.ck.it.entity.SetmealDish;
 import com.ck.it.vo.DishItemVO;
@@ -32,4 +33,11 @@ public interface SetMealService extends IService<Setmeal> {
 	 * @return {@link List }<{@link DishItemVO }>
 	 */
 	List<DishItemVO> queryBySetMealId(Integer id);
+
+	/**
+	 *  新增套餐
+	 *
+	 * @param dto
+	 */
+	void addSetmeal(SetmealDTO dto);
 }

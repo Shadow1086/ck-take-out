@@ -38,4 +38,12 @@ public interface DishService extends IService<Dish> {
 	 * @return {@link Integer }
 	 */
 	Integer updateStatus(Integer status, Long id);
+
+	/**
+	 *  管理端根据套餐id查询菜品
+	 *
+	 * @param categoryId
+	 * @return {@link List }<{@link Dish }>
+	 */
+	List<Dish> getByCategoryId(Long categoryId);
 }
