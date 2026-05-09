@@ -1,18 +1,27 @@
 package com.ck.it.service.impl;
 
+import com.ck.it.dto.BusinessDataItemDTO;
 import com.ck.it.dto.GoodsSalesDTO;
 import com.ck.it.dto.OrderStatisticsItemDTO;
 import com.ck.it.mapper.OrderMapper;
 import com.ck.it.mapper.UserMapper;
+import com.ck.it.mapper.WorkspaceMapper;
 import com.ck.it.service.ReportService;
-import com.ck.it.vo.OrderReportVO;
-import com.ck.it.vo.SalesTop10ReportVO;
-import com.ck.it.vo.TurnoverReportVO;
-import com.ck.it.vo.UserReportVO;
+import com.ck.it.service.WorkspaceService;
+import com.ck.it.vo.*;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,6 +43,8 @@ public class ReportServiceImpl implements ReportService {
 
 	private final OrderMapper orderMapper;
 	private final UserMapper userMapper;
+	private final WorkspaceService workspaceService;
+	private final WorkspaceMapper workspaceMapper;
 
 	/**
 	 * 营业额统计
@@ -176,6 +187,102 @@ public class ReportServiceImpl implements ReportService {
 		return SalesTop10ReportVO.builder()
 				.nameList(joinList(names))
 				.numberList(joinList(numbers)).build();
+	}
+
+	/**
+	 * 导出excel报表
+	 *
+	 * @return {@link Boolean }
+	 */
+	@Override
+	public Boolean export(HttpServletResponse response) {
+		/// 查询数据库，获取营业数据
+		LocalDate now = LocalDate.now();
+		LocalDate begin = now.plusDays(-30);
+
+		LocalDateTime beginTime = begin.atStartOfDay();
+		LocalDateTime endTime = now.atStartOfDay();
+
+		BusinessDataVO businessDataVO = workspaceService.businessData(beginTime, endTime);
+		if (businessDataVO == null) {
+			return false;
+		}
+
+		/// 通过POI件给数据写到Excel文件中
+//		File file = new File("/Volumes/study/02-java/Project/sky-take-out/sky-server/src/main/resources/templates/运营数据报表模板.xlsx");
+		try (InputStream in = this.getClass().getClassLoader().getResourceAsStream("templates/运营数据报表模板.xlsx")) {
+			if(in==null){
+				throw new RuntimeException("运营数据报表模板不存在");
+			}
+			///    基于模板文件创建一个新的excel文件
+			try (XSSFWorkbook excel = new XSSFWorkbook(in)) {
+				XSSFSheet sheet = excel.getSheet("Sheet1");
+				/// 概览数据
+				XSSFRow row = sheet.getRow(1);
+				row.getCell(1).setCellValue("时间：" + beginTime + "至" + endTime);
+
+				row = sheet.getRow(3);
+				row.getCell(2).setCellValue(businessDataVO.getTurnover());
+				row.getCell(4).setCellValue(businessDataVO.getOrderCompletionRate());
+				row.getCell(6).setCellValue(businessDataVO.getNewUsers());
+
+				row = sheet.getRow(4);
+				row.getCell(2).setCellValue(businessDataVO.getValidOrderCount());
+				row.getCell(4).setCellValue(businessDataVO.getUnitPrice());
+				/// 明细数据
+				List<BusinessDataItemDTO> items = workspaceMapper.businessDataDetailReport(beginTime, endTime);
+				Map<LocalDate, BusinessDataItemDTO> itemMap = items.stream()
+						.collect(Collectors.toMap(BusinessDataItemDTO::getDate, item -> item));
+
+				/// 循环30天补零
+				int detailStartRow = 7;
+				for (int i = 0; i < 30; i++) {
+					LocalDate date = begin.plusDays(i);
+					BusinessDataItemDTO item = itemMap.get(date);
+
+					BigDecimal turnover = item == null || item.getTurnover() == null
+							? BigDecimal.ZERO
+							: item.getTurnover();
+					int orderCount = item == null || item.getOrderCount() == null
+							? 0
+							: item.getOrderCount();
+					int validOrderCount = item == null || item.getValidOrderCount() == null
+							? 0
+							: item.getValidOrderCount();
+					int newUsers = item == null || item.getNewUsers() == null
+							? 0
+							: item.getNewUsers();
+					double orderCompletionRate = orderCount == 0
+							? 0.0
+							: validOrderCount * 1.0 / orderCount;
+					double unitPrice = validOrderCount == 0
+							? 0.0
+							: turnover.divide(BigDecimal.valueOf(validOrderCount), 2, RoundingMode.HALF_UP).doubleValue();
+
+					row = sheet.getRow(detailStartRow + i);
+					if (row == null) {
+						row = sheet.createRow(detailStartRow + i);
+					}
+
+					row.getCell(1).setCellValue(date.toString());
+					row.getCell(2).setCellValue(turnover.doubleValue());
+					row.getCell(3).setCellValue(validOrderCount);
+					row.getCell(4).setCellValue(orderCompletionRate);
+					row.getCell(5).setCellValue(unitPrice);
+					row.getCell(6).setCellValue(newUsers);
+
+				}
+
+				/// 通过输出流将Excel下载到客户端
+				ServletOutputStream outputStream = response.getOutputStream();
+				excel.write(outputStream);
+				outputStream.close();
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		return true;
 	}
 
 	private <T> String joinList(List<T> list) {

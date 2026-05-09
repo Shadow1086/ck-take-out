@@ -5,6 +5,7 @@ import com.ck.it.vo.OrderReportVO;
 import com.ck.it.vo.SalesTop10ReportVO;
 import com.ck.it.vo.TurnoverReportVO;
 import com.ck.it.vo.UserReportVO;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.time.LocalDate;
 
@@ -52,4 +53,11 @@ public interface ReportService{
 	 * @return {@link SalesTop10ReportVO }
 	 */
 	SalesTop10ReportVO top(LocalDate begin, LocalDate end);
+
+	/**
+	 *  导出excel报表
+	 *
+	 * @return {@link Boolean }
+	 */
+	Boolean export(HttpServletResponse response);
 }

@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 /**
  * Package: com.ck.it.controller.admin
  * Description:
@@ -27,6 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 public class WorkSpaceController {
+
+	private static final LocalDateTime BEGIN = LocalDate.now().atStartOfDay();
+	private static final LocalDateTime END = LocalDate.now().plusDays(1).atStartOfDay();
+
 	private final WorkspaceService workspaceService;
 
 	/**
@@ -38,7 +45,7 @@ public class WorkSpaceController {
 	@Operation(summary = "查询今日运营数据")
 	public Result<BusinessDataVO> businessData() {
 		log.info("查询今日运营数据");
-		return Result.success(workspaceService.businessData());
+		return Result.success(workspaceService.businessData(BEGIN,END));
 	}
 
 	/**

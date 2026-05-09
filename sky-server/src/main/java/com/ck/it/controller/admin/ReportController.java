@@ -8,6 +8,7 @@ import com.ck.it.vo.TurnoverReportVO;
 import com.ck.it.vo.UserReportVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -82,5 +83,13 @@ public class ReportController {
 			@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
 		log.info("查询销量排名top10的菜品：{}->{}",begin,end);
 		return Result.success(reportService.top(begin,end));
+	}
+
+	@GetMapping("/export")
+	@Operation(summary = "导出Excel报表接口")
+	public Result<Boolean> export(HttpServletResponse response){
+		reportService.export(response);
+		return Result.success();
+
 	}
 }

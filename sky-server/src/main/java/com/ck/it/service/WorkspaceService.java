@@ -7,6 +7,8 @@ import com.ck.it.vo.DishOverViewVO;
 import com.ck.it.vo.OrderOverViewVO;
 import com.ck.it.vo.SetmealOverViewVO;
 
+import java.time.LocalDateTime;
+
 /**
  * Package: com.ck.it.service
  * Description:
@@ -20,7 +22,7 @@ public interface WorkspaceService extends IService<Orders> {
 	 *
 	 * @return {@link BusinessDataVO }
 	 */
-	BusinessDataVO businessData();
+	BusinessDataVO businessData(LocalDateTime begin, LocalDateTime end);
 
 	/**
 	 *  查询订单管理数据

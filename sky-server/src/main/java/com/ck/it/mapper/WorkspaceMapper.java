@@ -1,6 +1,7 @@
 package com.ck.it.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.ck.it.dto.BusinessDataItemDTO;
 import com.ck.it.entity.Orders;
 import com.ck.it.vo.DishOverViewVO;
 import com.ck.it.vo.OrderOverViewVO;
@@ -8,6 +9,7 @@ import com.ck.it.vo.SetmealOverViewVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Package: com.ck.it.mapper
@@ -41,4 +43,13 @@ public interface WorkspaceMapper extends BaseMapper<Orders> {
 	 * @return {@link SetmealOverViewVO }
 	 */
 	SetmealOverViewVO overviewSetmeals();
+
+	/**
+	 *  导出数据报表的详情部分
+	 *
+	 * @param begin
+	 * @param end
+	 * @return {@link List }<{@link BusinessDataItemDTO }>
+	 */
+	List<BusinessDataItemDTO> businessDataDetailReport(LocalDateTime begin,LocalDateTime end);
 }

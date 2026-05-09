@@ -27,4 +27,35 @@
 		       IFNULL(SUM(IF(status = 0, 1, 0)), 0) AS discontinued
 		FROM setmeal
 	</select>
+	<select id="businessDataDetailReport" resultType="com.ck.it.dto.BusinessDataItemDTO">
+		SELECT report_date                       AS date,
+		       IFNULL(SUM(turnover), 0)          AS turnover,
+		       IFNULL(SUM(order_count), 0)       AS order_count,
+		       IFNULL(SUM(valid_order_count), 0) AS valid_order_count,
+		       IFNULL(SUM(new_users), 0)         AS new_users
+		FROM (SELECT DATE(order_time)                                   AS report_date,
+		             SUM(CASE WHEN `status` = 5 THEN amount ELSE 0 END) AS turnover,
+		             COUNT(*)                                           AS order_count,
+		             SUM(CASE WHEN `status` = 5 THEN 1 ELSE 0 END)      AS valid_order_count,
+		             0                                                  AS new_users
+		      FROM orders
+		      WHERE order_time &gt;= #{begin}
+			    AND order_time &lt; #{end}
+		      GROUP BY DATE(order_time)
+
+		      UNION ALL
+
+		      SELECT DATE(create_time) AS report_date,
+		             0                 AS turnover,
+		             0                 AS order_count,
+		             0                 AS valid_order_count,
+		             COUNT(*)          AS new_users
+		      FROM `user`
+		      WHERE create_time &gt;= #{begin}
+			    AND create_time &lt; #{end}
+		      GROUP BY DATE(create_time)) t
+		GROUP BY report_date
+		ORDER BY report_date;
+	</select>
+
 </mapper>

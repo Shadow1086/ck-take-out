@@ -42,11 +42,11 @@ public class WorkspaceServiceImpl extends ServiceImpl<WorkspaceMapper, Orders> i
 	 * @return {@link BusinessDataVO }
 	 */
 	@Override
-	public BusinessDataVO businessData() {
+	public BusinessDataVO businessData(LocalDateTime begin,LocalDateTime end) {
 		/// 新增用户数
-		Integer newUsers = userMapper.newUserCount(BEGIN, END);
+		Integer newUsers = userMapper.newUserCount(begin, end);
 		/// 有效订单数
-		List<OrderStatisticsItemDTO> orderStatisticsItemDTOS = orderMapper.orderReport(BEGIN, END);
+		List<OrderStatisticsItemDTO> orderStatisticsItemDTOS = orderMapper.orderReport(begin, end);
 		OrderStatisticsItemDTO dto = new OrderStatisticsItemDTO();
 		if (orderStatisticsItemDTOS != null && orderStatisticsItemDTOS.size() == 1) {
 			dto = orderStatisticsItemDTOS.getFirst();
@@ -54,7 +54,7 @@ public class WorkspaceServiceImpl extends ServiceImpl<WorkspaceMapper, Orders> i
 		int orderCount = dto.getOrderCount() == null ? 0 : dto.getOrderCount();
 		int validOrderCount = dto.getValidOrderCount() == null ? 0 : dto.getValidOrderCount();
 		/// 营业额
-		BigDecimal turnover = orderMapper.countAmount(BEGIN, END);
+		BigDecimal turnover = orderMapper.countAmount(begin, end);
 		/// 订单完成率
 		double orderCompletionRate = orderCount == 0 ? 0.0 : validOrderCount * 1.0 / orderCount;
 
