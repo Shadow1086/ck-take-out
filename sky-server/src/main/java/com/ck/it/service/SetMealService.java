@@ -3,8 +3,10 @@ package com.ck.it.service;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ck.it.dto.SetmealDTO;
+import com.ck.it.dto.SetmealPageQueryDTO;
 import com.ck.it.entity.Setmeal;
 import com.ck.it.entity.SetmealDish;
+import com.ck.it.result.PageResult;
 import com.ck.it.vo.DishItemVO;
 import com.ck.it.vo.SetmealVO;
 
@@ -40,4 +42,12 @@ public interface SetMealService extends IService<Setmeal> {
 	 * @param dto
 	 */
 	void addSetmeal(SetmealDTO dto);
+
+	/**
+	 *  分页查询套餐
+	 *
+	 * @param dto
+	 * @return {@link PageResult }
+	 */
+	PageResult queryPage(SetmealPageQueryDTO dto);
 }
