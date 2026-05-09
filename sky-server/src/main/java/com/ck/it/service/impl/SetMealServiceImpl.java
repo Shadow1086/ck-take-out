@@ -4,12 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ck.it.constant.MessageConstant;
 import com.ck.it.constant.StatusConstant;
 import com.ck.it.context.BaseContext;
 import com.ck.it.dto.SetmealDTO;
 import com.ck.it.dto.SetmealPageQueryDTO;
+import com.ck.it.entity.Dish;
 import com.ck.it.entity.Setmeal;
 import com.ck.it.entity.SetmealDish;
+import com.ck.it.exception.SetmealEnableFailedException;
+import com.ck.it.mapper.DishMapper;
 import com.ck.it.mapper.SetmealDishMapper;
 import com.ck.it.mapper.SetmealMapper;
 import com.ck.it.result.PageResult;
@@ -23,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +43,8 @@ public class SetMealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
 	private SetmealMapper setmealMapper;
 	@Autowired
 	private SetmealDishMapper setmealDishMapper;
+	@Autowired
+	private DishMapper dishMapper;
 
 	@Override
 	public List<SetmealVO> queryByCategoryId(Integer categoryId) {
@@ -144,6 +151,39 @@ public class SetMealServiceImpl extends ServiceImpl<SetmealMapper, Setmeal> impl
 
 		pageResult.setRecords(list);
 		return pageResult;
+	}
+
+	/**
+	 * 套餐停售/起售
+	 *
+	 * @param id
+	 * @param status
+	 */
+	@Override
+	public void changeStatus(Long id, Integer status) {
+		Setmeal setmeal = setmealMapper.selectById(id);
+		if (setmeal == null) {
+			throw new SetmealEnableFailedException("套餐不存在");
+		}
+		if (Objects.equals(setmeal.getStatus(), status)) {
+			return;
+		}
+		/// 判断套餐中的菜品是否停售
+		List<SetmealDish> setmealDishes = setmealDishMapper.selectList(new LambdaQueryWrapper<SetmealDish>()
+				.eq(SetmealDish::getSetmealId, id));
+		setmealDishes.stream().map(dish -> {
+			/// 如果dishes不为空，说明
+			List<Dish> dishes = dishMapper.selectList(new LambdaQueryWrapper<Dish>()
+					.eq(Dish::getId, dish.getDishId())
+					.eq(Dish::getStatus, 0));
+			if (dishes != null) {
+				throw new SetmealEnableFailedException(MessageConstant.SETMEAL_ENABLE_FAILED);
+			}
+			return null;
+		});
+		/// 更改装太
+		setmeal.setStatus(status);
+		setmealMapper.updateById(setmeal);
 	}
 }
 

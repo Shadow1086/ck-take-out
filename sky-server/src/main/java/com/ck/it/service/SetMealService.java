@@ -50,4 +50,12 @@ public interface SetMealService extends IService<Setmeal> {
 	 * @return {@link PageResult }
 	 */
 	PageResult queryPage(SetmealPageQueryDTO dto);
+
+	/**
+	 *  套餐停售/起售
+	 *
+	 * @param id
+	 * @param status
+	 */
+	void changeStatus(Long id, Integer status);
 }
